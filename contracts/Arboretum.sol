@@ -5,7 +5,7 @@
    It performs time-managment functions and reverts on invalid moves.
 */
 
-//TO-DO: Testing. Update - tested some fail scenarios and 1 win scenario via VM. Will test on testnet next.
+//TO-DO: Testing
 //TO-DO: Use DSMath or SafeMath for formulae
 //TO-DO: Lapse rate logic (incl. returning bounty to planter)
 //TO-DO: Fee logic
@@ -22,6 +22,7 @@ struct Tree {
     uint paymentFrequency;
     uint paymentSize;
     uint lapseLimit;
+    uint fee; //--NEW: Fee 
     uint startDate;
     uint waterersNeeded;
     
@@ -37,6 +38,7 @@ struct Tree {
 struct UserStats {
     uint fruitEarned; 
     uint nextDue;
+    uint lastDue; //--NEW: Player must wait until next interval before watering again (prevents watering back-to-back)
 }
 
 contract Arboretum {
@@ -73,7 +75,7 @@ contract Arboretum {
         require (id < treeCount);
         
         Tree memory t = trees[id];
-         UserStats memory stats = statsForTree[id][msg.sender];
+        UserStats memory stats = statsForTree[id][msg.sender];
         
         require (t.planter != msg.sender, "Can't water own tree.");
         require (block.timestamp <= (t.startDate+(t.treeDuration)), "Watering period has ended.");
@@ -100,9 +102,11 @@ contract Arboretum {
             
             require (msg.value == t.paymentSize, "Incorrect payment amount."); //make sure waterer is sending the right payment
             require (block.timestamp <= stats.nextDue && stats.nextDue > 0, "You lapsed. No fruit for you!"); //make sure payment is happening before the due period, and user pre-joined by watering
+            require (block.timestamp >= stats.lastDue, "Wait until the next payment cycle.");
             
             trees[id].fundsRaised += msg.value;
             statsForTree[id][msg.sender].fruitEarned += 1;
+            statsForTree[id][msg.sender].lastDue = stats.nextDue;
             statsForTree[id][msg.sender].nextDue = stats.nextDue + (t.treeDuration / t.paymentFrequency);
             
             if (statsForTree[id][msg.sender].fruitEarned == trees[id].paymentFrequency) { //--NEW: Keeps track of count of all players who met their payments 
