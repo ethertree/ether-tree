@@ -197,7 +197,7 @@ contract Arboretum {
 
     function redeem(uint id) public {
         require(id < treeCount);
-        require (block.timestamp > trees[id].treeDuration, "Must wait until watering period is over to redeem.");
+        require (block.timestamp > trees[id].startDate.add(trees[id].treeDuration), "Must wait until watering period is over to redeem."); //bugfix: start date must be added to duration
         //require (fruit <= statsForTree[id][msg.sender].fruitEarned && fruit > 0);
         
        if (msg.sender == trees[id].planter) {
