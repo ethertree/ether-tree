@@ -23,6 +23,18 @@ export default function ExampleUI({purpose, setPurposeEvents, address, mainnetPr
         <Divider/>
 
         <div style={{margin:8}}>
+          <Button onClick={()=>{
+              //uint duration, uint freq, uint payment_size, uint lapse_limit, uint start_date, uint min_waterers
+              let paymentSize = parseEther("0.001");
+
+            tx( writeContracts.Arboretum.plant("864000", "10", "10000000000000000", "5", "1611902014", "20", {
+              value: parseEther("15")
+            }))
+            /* this will fail until you make the setPurpose function payable */
+          }}>Plant A Seed</Button>
+        </div>
+
+        <div style={{margin:8}}>
           <Input onChange={(e)=>{setNewPurpose(e.target.value)}} />
           <Button onClick={()=>{
             console.log("newPurpose",newPurpose)

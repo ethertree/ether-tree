@@ -12,7 +12,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph } from "./views"
+import { Hints, ExampleUI, Subgraph, PlantTree } from "./views"
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -160,7 +160,10 @@ function App(props) {
           <Menu.Item key="/">
             <Link onClick={()=>{setRoute("/")}} to="/">YourContract</Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          <Menu.Item key="/plant">
+            <Link onClick={()=>{setRoute("/plant")}} to="/plant">Plant A Tree</Link>
+          </Menu.Item>        
+          {/* <Menu.Item key="/hints">
             <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
           </Menu.Item>
           <Menu.Item key="/exampleui">
@@ -168,7 +171,8 @@ function App(props) {
           </Menu.Item>
           <Menu.Item key="/subgraph">
             <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item>
+          </Menu.Item> */}
+          
         </Menu>
 
         <Switch>
@@ -178,8 +182,15 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
-            <Contract
+            {/* <Contract
               name="YourContract"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            /> */}
+             <Contract
+              name="Arboretum"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
@@ -207,6 +218,21 @@ function App(props) {
           </Route>
           <Route path="/exampleui">
             <ExampleUI
+              address={address}
+              userProvider={userProvider}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              yourLocalBalance={yourLocalBalance}
+              price={price}
+              tx={tx}
+              writeContracts={writeContracts}
+              readContracts={readContracts}
+              purpose={purpose}
+              setPurposeEvents={setPurposeEvents}
+            />
+          </Route>
+          <Route path="/plant">
+            <PlantTree
               address={address}
               userProvider={userProvider}
               mainnetProvider={mainnetProvider}
