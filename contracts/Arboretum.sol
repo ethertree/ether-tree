@@ -9,7 +9,6 @@
 
 //TO-DO: Testing
 //TO-DO: Mint NFT for planters if they "win"
-//TO-DO: Connect to aave to earn interest for the pool (?)
 
 pragma solidity ^0.7.4;
 
@@ -101,6 +100,7 @@ struct Tree {
     
     //--bookkeeping--//
     uint fundsRaised;
+    uint aTokensRaised; //Once converted to aTokens
     uint finishedCount; //--NEW: count of all players that made 'paymentFrequency' payments (finished watering)
    
 }
@@ -158,6 +158,8 @@ contract Arboretum {
         //(right now it is free to join an upcoming tree)
         if (block.timestamp < t.startDate) {
             require(stats.nextDue == 0, "Can only join the tree once"); //Only new players have a 0 next-due (Bugfix - makes sure you can only join once)
+            require(msg.value == 0); //BUGFIX: make sure we don't keep ether for joining
+            
             trees[id].waterers.push(msg.sender);
             
             //Give the user stats per each tree they are a member
