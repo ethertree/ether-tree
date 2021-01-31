@@ -121,6 +121,7 @@ contract Arboretum {
     uint public treeCount;
     mapping (uint => Tree) public trees;
     
+    
     //User stats:
     mapping (uint => mapping (address => UserStats)) public statsForTree;
     
