@@ -5,6 +5,7 @@
    It performs time-managment functions and reverts on invalid moves.
 
    Author: Michael C
+   Addresses: 0x0B4D3203B5638D14d1A3927aF410857652a755E3 (Kovan Testnet)
 */
 
 //TO-DO: Mint NFT for planters if they "win"
@@ -256,7 +257,8 @@ contract Tree is CoreType {
     
     //--bookkeeping--//
     uint public fundsRaised;
-    uint public finishedCount; //--NEW: count of all players that made 'paymentFrequency' payments (finished watering)
+    uint public finishedCount; //count of all players that made 'paymentFrequency' payments (finished watering)
+    uint internal leftToClaim; //Same as finishedCount, goes down by 1 everytime someone redeems (fix for AAVE implementation)
     
     mapping (address => UserStats) public statsForTree;
     
@@ -325,6 +327,7 @@ contract Tree is CoreType {
             
             if (statsForTree[user].fruitEarned == paymentFrequency) { //--NEW: Keeps track of count of all players who met their payments 
                finishedCount++; 
+               leftToClaim++;
             }
             
             gw.depositETH{value:msg.value}(address(this),0);
@@ -372,8 +375,9 @@ contract Tree is CoreType {
                uint amountToSend = 0;
                if (lapseLimit > a.lapsePercent(id)) {
                 
-                    amountToSend = aWeth.balanceOf(address(this)).div(finishedCount); //Now AAVE interest is split between players
+                    amountToSend = aWeth.balanceOf(address(this)).div(leftToClaim); //Now AAVE interest is split between players
                     statsForTree[user].fruitEarned = 0;
+                    leftToClaim = leftToClaim.sub(1);
                     a.logRedeem(id, user, amountToSend);
                     gw.withdrawETH(amountToSend, user);
             
@@ -382,7 +386,8 @@ contract Tree is CoreType {
                    uint bounty = bountyPool;
                    uint theFee = a.feeAmount(id);
                    uint payments = aWeth.balanceOf(address(this)).sub(bounty).sub(theFee); //Once again: interest earned (ever-increasing aToken balance), but less the bounty+fee
-                   amountToSend = payments.div(finishedCount);
+                   amountToSend = payments.div(leftToClaim);
+                   leftToClaim = leftToClaim.sub(1);
                    a.logRedeem(id, user, amountToSend);
                    gw.withdrawETH(amountToSend, user);
              }       
