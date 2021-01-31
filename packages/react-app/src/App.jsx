@@ -12,7 +12,9 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree } from "./views"
+import { Hints, ExampleUI, Subgraph, PlantTree , Trees} from "./views";
+import tryToDisplay from "./components/Contract/utils";
+
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -52,8 +54,6 @@ const localProviderUrl = "http://"+window.location.hostname+":8545"; // for xdai
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
 if(DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
 const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
-
-
 
 function App(props) {
   const [injectedProvider, setInjectedProvider] = useState();
@@ -105,10 +105,20 @@ function App(props) {
   const purpose = useContractReader(readContracts,"YourContract", "purpose")
   console.log("🤗 purpose:",purpose)
 
+  const treeCount = tryToDisplay(useContractReader(readContracts,"Arboretum", "treeCount"))  
+  console.log("treeCount : ",treeCount);
+  
+
+  
+
   //📟 Listen for broadcast events
   const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
   console.log("📟 SetPurpose events:",setPurposeEvents)
 
+  const treePlantedEvents = useEventListener(readContracts, "Arboretum", "TreePlanted", localProvider, 1);
+  console.log("Tree planted events:",treePlantedEvents)
+
+  
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
@@ -163,7 +173,10 @@ function App(props) {
           <Menu.Item key="/plant">
             <Link onClick={()=>{setRoute("/plant")}} to="/plant">Plant A Tree</Link>
           </Menu.Item>        
-          {/* <Menu.Item key="/hints">
+          <Menu.Item key="/tree">
+            <Link onClick={()=>{setRoute("/tree")}} to="/tree">All Tree</Link>
+          </Menu.Item>        
+          <Menu.Item key="/hints">
             <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
           </Menu.Item>
           <Menu.Item key="/exampleui">
@@ -171,7 +184,7 @@ function App(props) {
           </Menu.Item>
           <Menu.Item key="/subgraph">
             <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item> */}
+          </Menu.Item>
           
         </Menu>
 
@@ -182,13 +195,13 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
-            {/* <Contract
+            <Contract
               name="YourContract"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
               blockExplorer={blockExplorer}
-            /> */}
+            />
              <Contract
               name="Arboretum"
               signer={userProvider.getSigner()}
@@ -214,6 +227,21 @@ function App(props) {
               yourLocalBalance={yourLocalBalance}
               mainnetProvider={mainnetProvider}
               price={price}
+            />
+          </Route>
+          <Route path="/tree">
+          <Trees
+              address={address}
+              userProvider={userProvider}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              yourLocalBalance={yourLocalBalance}
+              price={price}
+              tx={tx}
+              writeContracts={writeContracts}
+              readContracts={readContracts}
+              treeCount={treeCount}
+              treePlantedEvents={treePlantedEvents}
             />
           </Route>
           <Route path="/exampleui">
@@ -243,6 +271,7 @@ function App(props) {
               writeContracts={writeContracts}
               readContracts={readContracts}
               purpose={purpose}
+              treeCount={treeCount}
               setPurposeEvents={setPurposeEvents}
             />
           </Route>
