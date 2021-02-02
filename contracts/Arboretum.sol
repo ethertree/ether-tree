@@ -141,7 +141,7 @@ contract Arboretum {
         trees[treeCount] = t;
         treeCount++;
         
-        emit TreePlanted(treeCount - 1);
+        emit TreePlanted(treeCount - 1, start_date, start_date.add(duration), msg.value, fee_amount, payment_size, freq, lapse_limit, min_waterers); //expanded event (for subgraph)
     }
     
     function water(uint id) public payable {
@@ -232,7 +232,7 @@ contract Arboretum {
     
     event JoinTree(uint _id, address _waterer);
     event TreeWatered(uint _id, address _waterer);
-    event TreePlanted(uint _id);
+    event TreePlanted(uint _id, uint _startDate, uint _endDate, uint _bounty, uint _feeAmt, uint _paymentSize, uint _paymentFrequency, uint _lapseLimit, uint _minWaterers);
     event FruitRedeemed(uint _id, address _redeemer, uint _etherAmount);
 }
 

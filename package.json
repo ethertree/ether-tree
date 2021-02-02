@@ -1,3 +1,11 @@
 {
-  "name": "hardhat-project"
+  "name": "hardhat-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/ethertree/ether-tree/",
+  "author": "rollodex <michael.glenn837@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "keytar": "^7.3.0"
+  }
 }
