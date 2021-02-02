@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { usePoller } from "eth-hooks";
-import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
+import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin, Popover } from "antd";
 import tryToDisplay from "./Contract/utils";
 import { useContractReader, useEventListener } from "../hooks/index";
 import { formatEther, parseEther } from "@ethersproject/units";
+import photo from "../phaseinit.png"
 
 export default function TreeContent(props) {
   //const [bountyPool, setBountyPool] = useState();
+  const { Meta } = Card;
   const [treeInfo, setTreeInfo] = useState();
 
   // Update the document title using the browser API
@@ -82,24 +84,73 @@ export default function TreeContent(props) {
     return startDate < now;
   }
 
+
   return (
-    <Card style={{ width: 300 }} id={props.e} key={props.e}>
-      <div>
-        <p>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</p>
-        <p>fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
-        <p>paymentFrequency : {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
-        <p>paymentSize : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
-        <p>startDate : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
-        <p>
-          endDate :{" "}
-          {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}
-        </p>
-        <p>treeDuration : {treeDetails ? getDurationInDate(tryToDisplay(treeDetails.treeDuration)) : ""}</p>
-        <p>waterersNeeded : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</p>
-        <p>Countdown : {treeDetails ? getCountdown(tryToDisplay(treeDetails.startDate)) : ""}</p>
-      </div>
-      <div>
-        <Button
+    // <Card style={{ width: 300 }} id={props.e} key={props.e}>
+    //   <div>
+    //     <p>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</p>
+    //     <p>fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
+    //     <p>paymentFrequency : {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
+    //     <p>paymentSize : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
+    //     <p>startDate : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
+    //     <p>
+    //       endDate :{" "}
+    //       {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}
+    //     </p>
+    //     <p>treeDuration : {treeDetails ? getDurationInDate(tryToDisplay(treeDetails.treeDuration)) : ""}</p>
+    //     <p>waterersNeeded : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</p>
+    //     <p>Countdown : {treeDetails ? getCountdown(tryToDisplay(treeDetails.startDate)) : ""}</p>
+    //   </div>
+    //   <div>
+    //     <Button
+    //       disabled={treeDetails ? WaterBtnDisable(tryToDisplay(treeDetails.startDate)) : ""}
+    //       onClick={() => {
+    //         /* look how we call setPurpose AND send some value along */
+    //         props.tx(
+    //           props.writeContracts.Arboretum.water(props.id, {
+    //             value: treeDetails ? parseEther(formatEther(treeDetails.paymentSize)) : "",
+    //           }),
+    //         );
+    //       }}
+    //     >
+    //       Water It
+    //     </Button>
+    //     <Button
+    //       onClick={() => {
+    //         /* look how we call setPurpose AND send some value along */
+    //         props.tx(props.writeContracts.Arboretum.redeem(props.id));
+    //       }}
+    //     >
+    //       Redeem
+    //     </Button>
+    //   </div>
+    //   <Divider />
+    //   <div>
+    //     <p>fruitEarned : {MyTreeStats ? tryToDisplay(MyTreeStats.fruitEarned) : ""}</p>
+    //     <p>lastDue : {MyTreeStats ? getCountdown(tryToDisplay(MyTreeStats.lastDue)) : ""}</p>
+    //     <p>lastDue(seconds) : {MyTreeStats ? tryToDisplay(MyTreeStats.lastDue) : ""}</p>
+    //     <p>nextDue : {MyTreeStats ? getCountdown(tryToDisplay(MyTreeStats.nextDue)) : ""}</p>
+    //   </div>
+    // </Card>
+    
+    
+      <Card
+        id={props.e} key={props.e}
+        hoverable
+        style={{ width: 300 , marginBottom:"30px"}}
+        cover={<img alt="tree" src={photo}/>}  
+      >
+       <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
+       <p>Start Date : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
+       <p>End Date :{" "}
+       {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}</p>
+       
+       <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
+       <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
+      <p>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
+
+       
+         <Button
           disabled={treeDetails ? WaterBtnDisable(tryToDisplay(treeDetails.startDate)) : ""}
           onClick={() => {
             /* look how we call setPurpose AND send some value along */
@@ -120,14 +171,13 @@ export default function TreeContent(props) {
         >
           Redeem
         </Button>
-      </div>
-      <Divider />
-      <div>
-        <p>fruitEarned : {MyTreeStats ? tryToDisplay(MyTreeStats.fruitEarned) : ""}</p>
-        <p>lastDue : {MyTreeStats ? getCountdown(tryToDisplay(MyTreeStats.lastDue)) : ""}</p>
-        <p>lastDue(seconds) : {MyTreeStats ? tryToDisplay(MyTreeStats.lastDue) : ""}</p>
-        <p>nextDue : {MyTreeStats ? getCountdown(tryToDisplay(MyTreeStats.nextDue)) : ""}</p>
-      </div>
-    </Card>
-  );
-}
+      
+    
+
+
+
+       
+      </Card>
+      
+    );
+  }

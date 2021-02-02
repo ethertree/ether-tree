@@ -12,7 +12,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree , Trees} from "./views";
+import { Hints, ExampleUI, Subgraph, PlantTree , Trees, About , HowTo, MyTree} from "./views";
 import tryToDisplay from "./components/Contract/utils";
 
 /*
@@ -172,11 +172,20 @@ function App(props) {
           </Menu.Item>
           <Menu.Item key="/plant">
             <Link onClick={()=>{setRoute("/plant")}} to="/plant">Plant A Tree</Link>
-          </Menu.Item>        
+          </Menu.Item>
+          <Menu.Item key="/my-tree">
+            <Link onClick={()=>{setRoute("/my-tree")}} to="/my-tree">My Trees</Link>
+          </Menu.Item>         
           <Menu.Item key="/tree">
-            <Link onClick={()=>{setRoute("/tree")}} to="/tree">All Tree</Link>
+            <Link onClick={()=>{setRoute("/tree")}} to="/tree">Forest</Link>
+          </Menu.Item>
+          <Menu.Item key="/how-to">
+            <Link onClick={()=>{setRoute("/how-to")}} to="/how-to">How To Play</Link>
+          </Menu.Item>
+          <Menu.Item key="/about">
+            <Link onClick={()=>{setRoute("/about")}} to="/about">About Us</Link>
           </Menu.Item>        
-          <Menu.Item key="/hints">
+          {/* <Menu.Item key="/hints">
             <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
           </Menu.Item>
           <Menu.Item key="/exampleui">
@@ -184,7 +193,7 @@ function App(props) {
           </Menu.Item>
           <Menu.Item key="/subgraph">
             <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item>
+          </Menu.Item> */}
           
         </Menu>
 
@@ -227,6 +236,21 @@ function App(props) {
               yourLocalBalance={yourLocalBalance}
               mainnetProvider={mainnetProvider}
               price={price}
+            />
+          </Route>
+          <Route path="/how-to">
+            <HowTo 
+            
+            />
+          </Route>
+          <Route path="/about">
+            <About
+ 
+            />
+          </Route>
+          <Route path="/my-tree">
+            <MyTree
+ 
             />
           </Route>
           <Route path="/tree">
