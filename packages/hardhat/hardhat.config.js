@@ -18,7 +18,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "kovan";
 
 function mnemonic() {
   try {
@@ -178,7 +178,7 @@ task("generate", "Create a mnemonic for builder deploys", async (_, { ethers }) 
   if (DEBUG) console.log("privateKey", privateKey)
   var EthUtil = require('ethereumjs-util');
   const address = "0x" + EthUtil.privateToAddress(wallet._privKey).toString('hex')
-  console.log("🔐 Account Generated as " + address + " and set as mnemonic in packages/hardhat")
+  console.log("🔐 Account Generated as " + address + " and set as mnemonic in packages/hardhat " + privateKey);
   console.log("💬 Use 'yarn run account' to get more information about the deployment account.")
 
   fs.writeFileSync("./" + address + ".txt", mnemonic.toString())

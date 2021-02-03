@@ -40,7 +40,7 @@ export default function Account({
           /*type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time*/
           onClick={loadWeb3Modal}
         >
-          connect
+          connect1
         </Button>,
       );
     }
