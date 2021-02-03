@@ -384,6 +384,92 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "treeInfo",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "bountyPool",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "treeDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymentFrequency",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "paymentSize",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lapseLimit",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fee",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "waterersNeeded",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "planted",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address payable",
+            "name": "planter",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "fundsRaised",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finishedCount",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct TreeInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }

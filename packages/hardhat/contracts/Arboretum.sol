@@ -3,18 +3,13 @@
    This is a simple, monolithic smart-contract factory
    It divides the game logic into 3 steps - plant(), water(), redeem()
    It performs time-managment functions and reverts on invalid moves.
+
 */
 
-//TO-DO: Testing
-//TO-DO: Use DSMath or SafeMath for formulae
-//TO-DO: Lapse rate logic (incl. returning bounty to planter)
-//TO-DO: Fee logic
 //TO-DO: Mint NFT for planters if they "win"
-//TO-DO: Connect to aave to earn interest for the pool (?)
-//TO-DO: Design meeting with dev team (should each tree be it's own seperate smart-contract?)
-//TO-DO: More comments and doc-style comments
 
 pragma solidity >=0.6.0 <0.7.0;
+pragma experimental ABIEncoderV2;
 
 library SafeMath {
     
@@ -93,10 +88,29 @@ library SafeMath {
 struct UserStats {
     uint fruitEarned; 
     uint nextDue; //Time until next payment must be made (in seconds)
-    uint lastDue; //--NEW: Player must wait until next interval before watering again (prevents watering back-to-back)
+    uint lastDue; //Player must wait until next interval before watering again (prevents watering back-to-back)
 }
 
-
+struct TreeInfo {
+    uint id;
+    uint bountyPool;       //Size of the bounty (in wei)
+    uint treeDuration;     //How long the tree runs in seconds (timestamp)
+    uint paymentFrequency; //Number of payments to be made
+    uint paymentSize;      //Payment amount in ether (wei)
+    uint lapseLimit;
+    uint fee; //Fee 
+    uint startDate;        //Time before watering period starts (in seconds)
+    uint waterersNeeded;   //Minimum players needed to join
+    uint planted; //Timestamp of when tree was planted 
+    
+    address payable planter;       //Address of tree planter / owner
+    //address[] waterers;    //Array of all tree waterers
+    
+    //--bookkeeping--//
+    uint fundsRaised;
+    uint finishedCount; //count of all players that made 'paymentFrequency' payments (finished watering)
+   
+}
 
 //Some handy global variables and addresses for AAVE
 contract CoreType {
@@ -168,7 +182,7 @@ contract Arboretum {
         t.redeem(msg.sender);
     }
   
-    //--NEW: Pass-through to get UserStats
+    //Pass-through to get UserStats
     function statsForTree(uint id, address user) view public returns (uint, uint, uint) {
          require(id < treeCount);
          
@@ -177,7 +191,7 @@ contract Arboretum {
          return t.statsForTree(user);
     }
     
-    //--NEW: returns 0 if not started yet
+    //eturns 0 if not started yet
     function getTimeLeft(uint id) view public returns (uint) {
           require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -188,7 +202,7 @@ contract Arboretum {
           
     }
     
-    //--NEW: Like getTimeLeft, but a countdown until the watering period starts
+    //Like getTimeLeft, but a countdown until the watering period starts
     function getTimeLeftToStart(uint id) view public returns (uint) {
         require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -234,6 +248,27 @@ contract Arboretum {
          emit FruitRedeemed( _id,  _redeemer, _etherAmount);
     }
     
+    function treeInfo(uint id) public view returns (TreeInfo memory) {
+       TreeInfo memory t; 
+        
+        Tree  tree = trees[id];
+        t.id = tree.id();
+        t.bountyPool = tree.bountyPool();
+        t.treeDuration = tree.treeDuration();
+        t.paymentFrequency = tree.paymentFrequency();
+        t.paymentSize = tree.paymentSize();
+        t.lapseLimit = tree.lapseLimit();
+        t.fee = tree.fee();
+        t.startDate = tree.startDate();
+        t.waterersNeeded = tree.waterersNeeded();
+        t.planter = tree.planter();
+        t.fundsRaised = tree.fundsRaised();
+        t.finishedCount = tree.finishedCount();
+        t.planted = tree.planted();
+        
+       return t; 
+    }
+    
     event JoinTree(uint _id, address _waterer);
     event TreeWatered(uint _id, address _waterer);
     event TreePlanted(uint _id, uint _startDate, uint _endDate, uint _bounty, uint _feeAmt, uint _paymentSize, uint _paymentFrequency, uint _lapseLimit, uint _minWaterers);
@@ -253,6 +288,7 @@ contract Tree is CoreType {
     uint public fee; //--NEW: Fee 
     uint public startDate;        //Time before watering period starts (in seconds)
     uint public waterersNeeded;   //Minimum players needed to join
+    uint public planted;          //What time the tree was planted
     
     address payable public planter;       //Address of tree planter / owner
     address[] public waterers;    //Array of all tree waterers
@@ -266,7 +302,7 @@ contract Tree is CoreType {
     
     mapping (address => UserStats) public statsForTree;
     
-    constructor(uint treeId,uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers, address payable the_planter) payable public {
+    constructor(uint treeId,uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers, address payable the_planter) public payable  {
         
         IWETHGateway gw = IWETHGateway(wethGateway);
         
@@ -281,6 +317,7 @@ contract Tree is CoreType {
          startDate = start_date;
          planter = the_planter; 
          waterersNeeded = min_waterers;
+         planted = block.timestamp; 
         
          //Validation and processing payment 
          fundsRaised = fundsRaised.add(bountyPool);
@@ -405,3 +442,5 @@ contract Tree is CoreType {
         return waterers.length;
     }
 }
+
+

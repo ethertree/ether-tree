@@ -14,7 +14,7 @@ export default function TreeContent(props) {
   // Update the document title using the browser API
   //console.log(props);
   console.log(props.id);
-  const treeDetails = useContractReader(props.readContracts, "Arboretum", "trees", [props.id]);
+  const treeDetails = useContractReader(props.readContracts, "Arboretum", "treeInfo", [props.id]);
   const MyTreeStats = useContractReader(props.readContracts, "Arboretum", "statsForTree", [props.id, props.address]);
   // console.log(
   //   "MyTreeStats : ",
@@ -132,24 +132,24 @@ export default function TreeContent(props) {
     //     <p>nextDue : {MyTreeStats ? getCountdown(tryToDisplay(MyTreeStats.nextDue)) : ""}</p>
     //   </div>
     // </Card>
-    
-    
+
+
       <Card
         id={props.e} key={props.e}
         hoverable
         style={{ width: 300 , marginBottom:"30px"}}
-        cover={<img alt="tree" src={photo}/>}  
+        cover={<img alt="tree" src={photo}/>}
       >
        <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
        <p>Start Date : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
        <p>End Date :{" "}
        {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}</p>
-       
+
        <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
        <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
       <p>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
 
-       
+
          <Button
           disabled={treeDetails ? WaterBtnDisable(tryToDisplay(treeDetails.startDate)) : ""}
           onClick={() => {
@@ -171,13 +171,13 @@ export default function TreeContent(props) {
         >
           Redeem
         </Button>
-      
-    
 
 
 
-       
+
+
+
       </Card>
-      
+
     );
   }
