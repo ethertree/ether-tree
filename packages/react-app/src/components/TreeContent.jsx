@@ -4,18 +4,16 @@ import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progres
 import tryToDisplay from "./Contract/utils";
 import { useContractReader, useEventListener } from "../hooks/index";
 import { formatEther, parseEther } from "@ethersproject/units";
-import photo from "../phaseinit.png"
 
 export default function TreeContent(props) {
   //const [bountyPool, setBountyPool] = useState();
   const { Meta } = Card;
   const [treeInfo, setTreeInfo] = useState();
-
   // Update the document title using the browser API
   //console.log(props);
   console.log(props.id);
   const treeDetails = useContractReader(props.readContracts, "Arboretum", "treeInfo", [props.id]);
-  const MyTreeStats = useContractReader(props.readContracts, "Arboretum", "statsForTree", [props.id, props.address]);
+  //const MyTreeStats = useContractReader(props.readContracts, "Arboretum", "statsForTree", [props.id, props.address]);
   // console.log(
   //   "MyTreeStats : ",
   //   MyTreeStats,
@@ -26,6 +24,14 @@ export default function TreeContent(props) {
   //   MyTreeStats ? tryToDisplay(MyTreeStats.nextDue) : "",
   // );
   console.log("tree : ", props.id, treeDetails, treeDetails ? tryToDisplay(treeDetails.bountyPool) : "");
+  // console.log("plantStamp : ", treeDetails ? tryToDisplay(treeDetails.planted) : "");
+  // console.log("paymentFrequency : ", treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : "");
+  // console.log("paymentSize : ", treeDetails ? tryToDisplay(treeDetails.paymentSize) : "");
+  // console.log("bountyPool : ", treeDetails ? tryToDisplay(treeDetails.bountyPool) : "");
+  // console.log("id : ", treeDetails ? tryToDisplay(treeDetails.id) : "");
+  // console.log("startDate : ", treeDetails ? tryToDisplay(treeDetails.startDate) : "");
+  // console.log("treeDuration : ", treeDetails ? tryToDisplay(treeDetails.treeDuration) : "");
+  // console.log("waterersNeeded : ", treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : "");
 
   function getStateDate(UNIXimestamp) {
     const a = new Date(UNIXimestamp * 1000);
@@ -84,6 +90,17 @@ export default function TreeContent(props) {
     return startDate < now;
   }
 
+  function getTreeType() {
+    let whichTree = treeDetails
+      ? (tryToDisplay(treeDetails.planted) +
+          Math.floor(tryToDisplay(treeDetails.startDate) / 10000) +
+          Math.floor(tryToDisplay(treeDetails.treeDuration) / 10000) +
+          tryToDisplay(treeDetails.id)) %
+        5
+      : "0";
+    let whichStage = 4;
+    return whichTree + "/" + whichStage;
+  }
 
   return (
     // <Card style={{ width: 300 }} id={props.e} key={props.e}>
@@ -133,51 +150,55 @@ export default function TreeContent(props) {
     //   </div>
     // </Card>
 
+    <Card
+      id={props.e}
+      key={props.e}
+      hoverable
+      style={{ width: 300, marginBottom: "30px" }}
+      cover={<img alt="tree" src={require(`../tree/${getTreeType()}.png`)} />}
+    >
+      <p>
+        Tree Type :{" "}
+        {treeDetails
+          ? (tryToDisplay(treeDetails.planted) +
+              Math.floor(tryToDisplay(treeDetails.startDate) / 10000) +
+              Math.floor(tryToDisplay(treeDetails.treeDuration) / 10000) +
+              tryToDisplay(treeDetails.id)) %
+            5
+          : "0"}
+      </p>
+      <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
+      <p>Start Date : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
+      <p>
+        End Date :{" "}
+        {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}
+      </p>
 
-      <Card
-        id={props.e} key={props.e}
-        hoverable
-        style={{ width: 300 , marginBottom:"30px"}}
-        cover={<img alt="tree" src={photo}/>}
-      >
-       <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
-       <p>Start Date : {treeDetails ? getStateDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
-       <p>End Date :{" "}
-       {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}</p>
-
-       <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
-       <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
+      <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
+      <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
       <p>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
 
-
-         <Button
-          disabled={treeDetails ? WaterBtnDisable(tryToDisplay(treeDetails.startDate)) : ""}
-          onClick={() => {
-            /* look how we call setPurpose AND send some value along */
-            props.tx(
-              props.writeContracts.Arboretum.water(props.id, {
-                value: treeDetails ? parseEther(formatEther(treeDetails.paymentSize)) : "",
-              }),
-            );
-          }}
-        >
-          Water It
-        </Button>
-        <Button
-          onClick={() => {
-            /* look how we call setPurpose AND send some value along */
-            props.tx(props.writeContracts.Arboretum.redeem(props.id));
-          }}
-        >
-          Redeem
-        </Button>
-
-
-
-
-
-
-      </Card>
-
-    );
-  }
+      <Button
+        disabled={treeDetails ? WaterBtnDisable(tryToDisplay(treeDetails.startDate)) : ""}
+        onClick={() => {
+          /* look how we call setPurpose AND send some value along */
+          props.tx(
+            props.writeContracts.Arboretum.water(props.id, {
+              value: treeDetails ? parseEther(formatEther(treeDetails.paymentSize)) : "",
+            }),
+          );
+        }}
+      >
+        Water It
+      </Button>
+      <Button
+        onClick={() => {
+          /* look how we call setPurpose AND send some value along */
+          props.tx(props.writeContracts.Arboretum.redeem(props.id));
+        }}
+      >
+        Redeem
+      </Button>
+    </Card>
+  );
+}

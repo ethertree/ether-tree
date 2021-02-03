@@ -118,11 +118,11 @@ function App(props) {
   console.log("treeCount : ", treeCount);
 
   //📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
-  console.log("📟 SetPurpose events:", setPurposeEvents);
+  // const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
+  // console.log("📟 SetPurpose events:", setPurposeEvents);
 
-  const treePlantedEvents = useEventListener(readContracts, "Arboretum", "TreePlanted", localProvider, 1);
-  console.log("Tree planted events:", treePlantedEvents);
+  // const treePlantedEvents = useEventListener(readContracts, "Arboretum", "TreePlanted", localProvider, 1);
+  // console.log("Tree planted events:", treePlantedEvents);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -313,7 +313,6 @@ function App(props) {
               writeContracts={writeContracts}
               readContracts={readContracts}
               treeCount={treeCount}
-              treePlantedEvents={treePlantedEvents}
             />
           </Route>
           <Route path="/exampleui">
@@ -327,8 +326,7 @@ function App(props) {
               tx={tx}
               writeContracts={writeContracts}
               readContracts={readContracts}
-              purpose={"he"}
-              setPurposeEvents={setPurposeEvents}
+              purpose={"he"}              
             />
           </Route>
           <Route path="/plant">
@@ -343,8 +341,7 @@ function App(props) {
               writeContracts={writeContracts}
               readContracts={readContracts}
               purpose={"he"}
-              treeCount={treeCount}
-              setPurposeEvents={setPurposeEvents}
+              treeCount={treeCount}              
             />
           </Route>
           <Route path="/subgraph">
