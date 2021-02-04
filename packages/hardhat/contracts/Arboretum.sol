@@ -101,7 +101,8 @@ struct TreeInfo {
     uint fee; //Fee 
     uint startDate;        //Time before watering period starts (in seconds)
     uint waterersNeeded;   //Minimum players needed to join
-    uint planted; //Timestamp of when tree was planted 
+    uint planted; //Timestamp of when tree was planted
+    uint timesWatered; //Total number of payments made 
     
     address payable planter;       //Address of tree planter / owner
     //address[] waterers;    //Array of all tree waterers
@@ -218,7 +219,7 @@ contract Arboretum {
         
         Tree t = trees[id];
         
-        return 100 - ((t.finishedCount().mul(100)).div(t.numOfWateres()));
+        return 100 - ((t.finishedCount().mul(100)).div(t.numOfWaterers()));
     }
     
     //Returns how much the Planter would earn in fees if lapse limit was hit:
@@ -265,7 +266,8 @@ contract Arboretum {
         t.fundsRaised = tree.fundsRaised();
         t.finishedCount = tree.finishedCount();
         t.planted = tree.planted();
-        
+        t.timesWatered = tree.timesWatered();        
+
        return t; 
     }
     
@@ -289,6 +291,7 @@ contract Tree is CoreType {
     uint public startDate;        //Time before watering period starts (in seconds)
     uint public waterersNeeded;   //Minimum players needed to join
     uint public planted;          //What time the tree was planted
+    uint public timesWatered;     //Total payments made
     
     address payable public planter;       //Address of tree planter / owner
     address[] public waterers;    //Array of all tree waterers
@@ -365,7 +368,8 @@ contract Tree is CoreType {
             statsForTree[user].fruitEarned += 1;
             statsForTree[user].lastDue = stats.nextDue;
             statsForTree[user].nextDue = stats.nextDue.add(treeDuration.div(paymentFrequency));
-            
+            timesWatered++;            
+
             if (statsForTree[user].fruitEarned == paymentFrequency) { //--NEW: Keeps track of count of all players who met their payments 
                finishedCount++; 
                leftToClaim++;
@@ -437,8 +441,8 @@ contract Tree is CoreType {
         
     }
     
-    //--NEW: Return waterers.length (as it is needed in parent contract)
-    function numOfWateres() public view returns (uint) {
+    //Return waterers.length (as it is needed in parent contract)
+    function numOfWaterers() public view returns (uint) {
         return waterers.length;
     }
 }
