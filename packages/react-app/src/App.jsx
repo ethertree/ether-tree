@@ -21,7 +21,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree } from "./views";
+import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree , Faqs} from "./views";
 import tryToDisplay from "./components/Contract/utils";
 
 /*
@@ -238,6 +238,16 @@ function App(props) {
               to="/about"
             >
               About Us
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/faq">
+            <Link
+              onClick={() => {
+                setRoute("/faq");
+              }}
+              to="/faq"
+            >
+              FAQ
             </Link>
           </Menu.Item>
           {/* <Menu.Item key="/hints">
