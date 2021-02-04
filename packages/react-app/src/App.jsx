@@ -12,7 +12,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree , Trees, About , HowTo, MyTree} from "./views";
+import { Hints, ExampleUI, Subgraph, PlantTree , Trees, About , HowTo, MyTree , Faqs} from "./views";
 import tryToDisplay from "./components/Contract/utils";
 
 /*
@@ -184,7 +184,10 @@ function App(props) {
           </Menu.Item>
           <Menu.Item key="/about">
             <Link onClick={()=>{setRoute("/about")}} to="/about">About Us</Link>
-          </Menu.Item>        
+          </Menu.Item> 
+          <Menu.Item key="/faq">
+            <Link onClick={()=>{setRoute("/faq")}} to="/faq">FAQ</Link>
+          </Menu.Item>         
           {/* <Menu.Item key="/hints">
             <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
           </Menu.Item>
@@ -248,6 +251,11 @@ function App(props) {
  
             />
           </Route>
+          <Route path="/faq">
+            <Faqs
+ 
+            />
+          </Route>
           <Route path="/my-tree">
             <MyTree
  
@@ -268,6 +276,10 @@ function App(props) {
               treePlantedEvents={treePlantedEvents}
             />
           </Route>
+
+
+
+
           <Route path="/exampleui">
             <ExampleUI
               address={address}

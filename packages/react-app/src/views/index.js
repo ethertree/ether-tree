@@ -6,3 +6,4 @@ export { default as Trees } from "./Trees";
 export { default as About } from "./About";
 export { default as HowTo } from "./HowTo";
 export { default as MyTree } from "./MyTree";
+export { default as Faqs } from "./Faq";
