@@ -18,7 +18,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "kovan";
 
 function mnemonic() {
   try {
@@ -48,31 +48,31 @@ module.exports = {
       */
     },
     rinkeby: {
-      url: "https://rinkeby.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://rinkeby.infura.io/v3/7b7a5abb1551405cb514e818e779e9f9", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
     },
     kovan: {
-      url: "https://kovan.infura.io/v3/a369dd2063df43169ac8fe8909df6f0d", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://kovan.infura.io/v3/7b7a5abb1551405cb514e818e779e9f9", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
     },
     mainnet: {
-      url: "https://mainnet.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://mainnet.infura.io/v3/7b7a5abb1551405cb514e818e779e9f9", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
     },
     ropsten: {
-      url: "https://ropsten.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://ropsten.infura.io/v3/7b7a5abb1551405cb514e818e779e9f9", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
     },
     goerli: {
-      url: "https://goerli.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
+      url: "https://goerli.infura.io/v3/7b7a5abb1551405cb514e818e779e9f9", //<---- YOUR INFURA ID! (or it won't work)
       accounts: {
         mnemonic: mnemonic(),
       },
@@ -178,7 +178,7 @@ task("generate", "Create a mnemonic for builder deploys", async (_, { ethers }) 
   if (DEBUG) console.log("privateKey", privateKey)
   var EthUtil = require('ethereumjs-util');
   const address = "0x" + EthUtil.privateToAddress(wallet._privKey).toString('hex')
-  console.log("🔐 Account Generated as " + address + " and set as mnemonic in packages/hardhat")
+  console.log("🔐 Account Generated as " + address + " and set as mnemonic in packages/hardhat " + privateKey);
   console.log("💬 Use 'yarn run account' to get more information about the deployment account.")
 
   fs.writeFileSync("./" + address + ".txt", mnemonic.toString())
