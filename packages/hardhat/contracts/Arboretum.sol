@@ -269,7 +269,7 @@ contract Arboretum {
        return t; 
     }
     
-    function treesJoined() public view returns (uint[] memory) {
+    function treesJoined() public view returns (uint[] memory, uint len) {
         
         uint i = 0; 
         uint c = 0;
@@ -277,7 +277,7 @@ contract Arboretum {
         
         while (i < treeCount) {
             
-            (uint fE, uint nD, uint lD) = statsForTree(i,msg.sender);
+            (, uint nD, ) = statsForTree(i,msg.sender);
             
             if (nD > 0) {
                 treeIds[c] = i;
@@ -287,7 +287,7 @@ contract Arboretum {
             i++;
         }
         
-        return treeIds;
+        return (treeIds, c);
     }
     
     event JoinTree(uint _id, address _waterer);
