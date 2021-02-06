@@ -105,6 +105,7 @@ struct TreeInfo {
     
     address payable planter;       //Address of tree planter / owner
     //address[] waterers;    //Array of all tree waterers
+    uint waterersCount;
     
     //--bookkeeping--//
     uint fundsRaised;
@@ -268,6 +269,7 @@ contract Arboretum {
         t.fundsRaised = tree.fundsRaised();
         t.finishedCount = tree.finishedCount();
         t.planted = tree.planted();
+        t.waterersCount = tree.numOfWateres();
         
        return t; 
     }
