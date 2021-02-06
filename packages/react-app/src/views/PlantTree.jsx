@@ -224,6 +224,41 @@ export default function PlantTree({
               Submit
             </Button>
           </Form.Item>
+
+
+          <div style={{margin:8}}>
+<Button onClick={()=>{
+    let plantTreeVal = {};
+    plantTreeVal.bounty = parseEther("0.01");
+    plantTreeVal.duration = 1800;
+    plantTreeVal.fee_amount = parseEther("0.01");
+    plantTreeVal.frequency = 3;
+    plantTreeVal.laple_limit = 2;
+    plantTreeVal.minwaters = 1;
+    plantTreeVal.payment_size = parseEther("0.01");
+    plantTreeVal.start_date = Math.round((new Date()).getTime() / 1000) + 120;
+    console.log(plantTreeVal);
+    tx(
+      writeContracts.Arboretum.plant(
+        plantTreeVal.duration,
+        plantTreeVal.frequency,
+        plantTreeVal.payment_size,
+        plantTreeVal.laple_limit,
+        plantTreeVal.fee_amount,
+        plantTreeVal.start_date,
+        plantTreeVal.minwaters,
+        {
+          value: plantTreeVal.bounty,
+        },
+      ),
+    );
+
+
+  /* this should throw an error about "no fallback nor receive function" until you add it */
+}}>Testing Plant</Button>
+</div>
+
+
         </Form>
       </div>
     </div>
