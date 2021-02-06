@@ -146,6 +146,7 @@ contract Arboretum {
     uint public treeCount;
     mapping (uint => Tree) public trees;
     mapping (address => bool) public isTree; 
+    mapping (address => uint[]) public treesJoined; //What trees did user join
     
     //User stats:
     //mapping (uint => mapping (address => UserStats)) public statsForTree;
@@ -233,6 +234,8 @@ contract Arboretum {
     function logJoin(uint _id, address _waterer) public {
         require(isTree[msg.sender] == true);
         
+        treesJoined[_waterer].push(_id);
+        
         emit JoinTree(_id,_waterer);
     }
     
@@ -269,26 +272,6 @@ contract Arboretum {
        return t; 
     }
     
-    function treesJoined() public view returns (uint[] memory, uint len) {
-        
-        uint i = 0; 
-        uint c = 0;
-        uint[] memory treeIds = new uint[](1024);
-        
-        while (i < treeCount) {
-            
-            (, uint nD, ) = statsForTree(i,msg.sender);
-            
-            if (nD > 0) {
-                treeIds[c] = i;
-                c++;
-            }
-            
-            i++;
-        }
-        
-        return (treeIds, c);
-    }
     
     event JoinTree(uint _id, address _waterer);
     event TreeWatered(uint _id, address _waterer);
@@ -322,6 +305,7 @@ contract Tree is CoreType {
     uint internal leftToClaim; //Same as finishedCount, goes down by 1 everytime someone redeems (fix for AAVE implementation)
     
     mapping (address => UserStats) public statsForTree;
+   
     
     constructor(uint treeId,uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers, address payable the_planter) public payable  {
         
