@@ -227,10 +227,11 @@ export default function PlantTree({
 
 
           <div style={{margin:8}}>
+            
 <Button onClick={()=>{
     let plantTreeVal = {};
     plantTreeVal.bounty = parseEther("0.01");
-    plantTreeVal.duration = 1800;
+    plantTreeVal.duration = 900;
     plantTreeVal.fee_amount = parseEther("0.01");
     plantTreeVal.frequency = 3;
     plantTreeVal.laple_limit = 2;
@@ -256,6 +257,7 @@ export default function PlantTree({
 
   /* this should throw an error about "no fallback nor receive function" until you add it */
 }}>Testing Plant</Button>
+<p>min water 1, duration : 15 min, frequency: 3, payment : 0.01</p>
 </div>
 
 

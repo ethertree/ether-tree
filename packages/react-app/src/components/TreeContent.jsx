@@ -97,22 +97,52 @@ export default function TreeContent(props) {
     return days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
   }
 
+  function canRedeem() {
+    if (treeDetails && myTreeStats) {
+      const now = new Date().getTime();
+        
+        let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration) )* 1000;        
+      if(tryToDisplay(myTreeStats[0]) ==  tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
   function waterBtnDisable() {
     if (treeDetails && myTreeStats) {
-      console.log(props.id, tryToDisplay(myTreeStats[0]), tryToDisplay(myTreeStats[1]), tryToDisplay(myTreeStats[2]));
+      //console.log(props.id, tryToDisplay(myTreeStats[0]), tryToDisplay(myTreeStats[1]), tryToDisplay(myTreeStats[2]));
       if (props.address !== treeDetails.planter) {
-        let startDate = tryToDisplay(treeDetails.startDate) * 1000;
         const now = new Date().getTime();
-        //if(now > getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)))
-        if (startDate > now) {
+        let startDate = tryToDisplay(treeDetails.startDate) * 1000;
+        let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration) )* 1000;        
+        let nextDueDate = tryToDisplay(myTreeStats[1]) *1000;
+        let lastDueDate = tryToDisplay(myTreeStats[2]) * 1000;
+        //if(now > getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)))        
+      
+        if(endDate < now) {
+          console.log("tree is done, now you can redeem")
+          return true;
+        } else if(nextDueDate > endDate) {
+          console.log("tree is done")
+          return true;
+        }
+        else if (startDate > now) {
           console.log("people can join");
           return false;
-        } else {          
-          if (tryToDisplay(myTreeStats[1]) > now) {
+        } else {
+          console.log(nextDueDate, lastDueDate, now);          
+          if(nextDueDate > now && lastDueDate == 0) {
+            console.log('first payment');
+            return false;
+          } else if(nextDueDate > now && lastDueDate < now) {
+            console.log("people can water");
             return false;
           } else {
-            return false;
-          }
+            console.log("have to wait till next due date");
+            return true;
+          }        
         }
       } else {
         return true;
@@ -207,6 +237,7 @@ export default function TreeContent(props) {
       </p>
 
       <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
+      <p>Fruit : {myTreeStats ? tryToDisplay(myTreeStats[0]) : ""}</p>
       <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
       <p>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
 
@@ -226,6 +257,7 @@ export default function TreeContent(props) {
         Water It
       </Button>
       <Button
+      disabled={canRedeem()}
         onClick={() => {
           /* look how we call setPurpose AND send some value along */
           props.tx(props.writeContracts.Arboretum.redeem(props.id));
