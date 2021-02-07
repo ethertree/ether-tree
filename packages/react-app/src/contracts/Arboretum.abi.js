@@ -449,6 +449,11 @@ module.exports = [
           },
           {
             "internalType": "uint256",
+            "name": "waterersCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "fundsRaised",
             "type": "uint256"
           },

@@ -100,9 +100,9 @@ export default function TreeContent(props) {
   function canRedeem() {
     if (treeDetails && myTreeStats) {
       const now = new Date().getTime();
-        
-        let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration) )* 1000;        
-      if(tryToDisplay(myTreeStats[0]) ==  tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
+
+      let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;
+      if (tryToDisplay(myTreeStats[0]) == tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
         return false;
       } else {
         return true;
@@ -116,33 +116,32 @@ export default function TreeContent(props) {
       if (props.address !== treeDetails.planter) {
         const now = new Date().getTime();
         let startDate = tryToDisplay(treeDetails.startDate) * 1000;
-        let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration) )* 1000;        
-        let nextDueDate = tryToDisplay(myTreeStats[1]) *1000;
+        let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;
+        let nextDueDate = tryToDisplay(myTreeStats[1]) * 1000;
         let lastDueDate = tryToDisplay(myTreeStats[2]) * 1000;
-        //if(now > getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)))        
-      
-        if(endDate < now) {
-          console.log("tree is done, now you can redeem")
+        //if(now > getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)))
+
+        if (endDate < now) {
+          console.log("tree is done, now you can redeem");
           return true;
-        } else if(nextDueDate > endDate) {
-          console.log("tree is done")
+        } else if (nextDueDate > endDate) {
+          console.log("tree is done");
           return true;
-        }
-        else if (startDate > now) {
+        } else if (startDate > now) {
           console.log("people can join");
           return false;
         } else {
-          console.log(nextDueDate, lastDueDate, now);          
-          if(nextDueDate > now && lastDueDate == 0) {
-            console.log('first payment');
+          console.log(nextDueDate, lastDueDate, now);
+          if (nextDueDate > now && lastDueDate == 0) {
+            console.log("first payment");
             return false;
-          } else if(nextDueDate > now && lastDueDate < now) {
+          } else if (nextDueDate > now && lastDueDate < now) {
             console.log("people can water");
             return false;
           } else {
             console.log("have to wait till next due date");
             return true;
-          }        
+          }
         }
       } else {
         return true;
@@ -161,15 +160,42 @@ export default function TreeContent(props) {
   }
 
   function getTreeType() {
-    let whichTree = treeDetails
-      ? (tryToDisplay(treeDetails.planted) +
+    if (treeDetails && myTreeStats) {
+      let whichTree =
+        (tryToDisplay(treeDetails.planted) +
           Math.floor(tryToDisplay(treeDetails.startDate) / 10000) +
           Math.floor(tryToDisplay(treeDetails.treeDuration) / 10000) +
           tryToDisplay(treeDetails.id)) %
-        5
-      : "0";
-    let whichStage = 4;
-    return whichTree + "/" + whichStage;
+        5;
+      let getStage = (myTreeStats[0] / treeDetails.paymentFrequency) * 100;
+
+      let whichStage = getStagePercentage(getStage);
+      return whichTree + "/" + whichStage;
+    } else {
+      return "0/0";
+    }
+  }
+
+  function getStagePercentage(statePercentage) {
+    console.log(typeof statePercentage, statePercentage);
+
+    if (statePercentage <= 12.5) {
+      return 0;
+    } else if (statePercentage > 12.5 && statePercentage <= 25) {
+      return 1;
+    } else if (statePercentage > 25 && statePercentage <= 37.5) {
+      return 2;
+    } else if (statePercentage > 37.5 && statePercentage <= 50) {
+      return 3;
+    } else if (statePercentage > 50 && statePercentage <= 62.5) {
+      return 4;
+    } else if (statePercentage > 62.5 && statePercentage <= 75) {
+      return 5;
+    } else if (statePercentage > 75 && statePercentage <= 87.5) {
+      return 6;
+    } else if (statePercentage > 87.5 && statePercentage <= 100) {
+      return 7;
+    }
   }
 
   return (
@@ -235,6 +261,8 @@ export default function TreeContent(props) {
         End Date :{" "}
         {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}
       </p>
+      <p>Waterers Count : {treeDetails ? tryToDisplay(treeDetails.waterersCount) : ""}</p>
+      <p>Min Waterers Needed : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</p>
 
       <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
       <p>Fruit : {myTreeStats ? tryToDisplay(myTreeStats[0]) : ""}</p>
@@ -257,7 +285,7 @@ export default function TreeContent(props) {
         Water It
       </Button>
       <Button
-      disabled={canRedeem()}
+        disabled={canRedeem()}
         onClick={() => {
           /* look how we call setPurpose AND send some value along */
           props.tx(props.writeContracts.Arboretum.redeem(props.id));
