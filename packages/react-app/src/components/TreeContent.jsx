@@ -21,6 +21,7 @@ import { useContractReader, useEventListener } from "../hooks/index";
 import { formatEther, parseEther } from "@ethersproject/units";
 import { Link } from "react-router-dom";
 import water from "../img/water.png";
+import harvests from "../img/harvests.png";
 import "./Tree.css";
 
 export default function TreeContent(props) {
@@ -28,7 +29,7 @@ export default function TreeContent(props) {
   const [treeInfo, setTreeInfo] = useState();
   const treeDetails = useContractReader(props.readContracts, "Arboretum", "treeInfo", [props.id]);
   const myTreeStats = useContractReader(props.readContracts, "Arboretum", "statsForTree", [props.id, props.address]);
-
+  let nextPaymentCycle = false;
   const [visible, setVisible] = useState(false);
 
   function getDate(UNIXimestamp) {
@@ -83,10 +84,13 @@ export default function TreeContent(props) {
     if (treeDetails && myTreeStats) {
       const now = new Date().getTime();
       let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;
+      console.log(props.id, " ------ ", tryToDisplay(myTreeStats[0]), tryToDisplay(treeDetails.paymentFrequency), now,endDate);
       if (tryToDisplay(myTreeStats[0]) == tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
-        return false;
-      } else {
+        console.log('tru');
         return true;
+      } else {
+        console.log('false');
+        return false;
       }
     }
   }
@@ -100,24 +104,24 @@ export default function TreeContent(props) {
         let nextDueDate = tryToDisplay(myTreeStats[1]) * 1000;
         let lastDueDate = tryToDisplay(myTreeStats[2]) * 1000;
         if (endDate < now) {
-          //console.log("tree is done, now you can redeem");
+          console.log(props.id, "tree is done, now you can redeem");
           return true;
         } else if (nextDueDate > endDate) {
-          //console.log("tree is done");
+          console.log(props.id, "tree is done");
           return true;
         } else if (startDate > now) {
-          //console.log("people can join");
+          console.log(props.id, "people can join");
           return false;
-        } else {
-          console.log(nextDueDate, lastDueDate, now);
+        } else {          
           if (nextDueDate > now && lastDueDate == 0) {
-            //console.log("first payment");
+            console.log(props.id, "first payment");
             return false;
           } else if (nextDueDate > now && lastDueDate < now) {
-            //console.log("people can water");
+            console.log(props.id, "people can water");
             return false;
           } else {
-            //console.log("have to wait till next due date");
+            console.log(props.id, "have to wait till next due date");
+            nextPaymentCycle = true;
             return true;
           }
         }
@@ -171,6 +175,60 @@ export default function TreeContent(props) {
       return 6;
     } else if (statePercentage > 87.5 && statePercentage <= 100) {
       return 7;
+    }
+  }
+
+  function waterOrHarver() {
+    console.log("WaterD:", waterBtnDisable());
+    console.log("HarvestD:", canHarvest());
+    if (!waterBtnDisable()) {
+      return (
+        <Col span={12}>
+          <button className="waterStyle">
+            <img
+              src={water}
+              alt="water"
+              style={{ width: 80, height: 80 }}
+              onClick={() => {
+                props.tx(
+                  props.writeContracts.Arboretum.water(props.id, {
+                    value: treeDetails
+                      ? waterIt(tryToDisplay(treeDetails.startDate), formatEther(treeDetails.paymentSize))
+                      : "",
+                  }),
+                );
+              }}
+            />
+            <span className="tooltiptext">Water the tree</span>
+          </button>
+        </Col>
+      );
+    }
+    if (canHarvest()) {
+      return (
+        <Col span={12}>
+          <button className="waterStyle">
+            <img
+              src={harvests}
+              alt="harvest"
+              style={{ width: 80, height: 80 }}
+              onClick={() => {
+                props.tx(props.writeContracts.Arboretum.redeem(props.id));
+              }}
+            />
+            <span className="tooltiptext">Harvest fruits</span>
+          </button>
+        </Col>
+      );
+    }
+    
+  }
+
+  function displayNextDueDate() {
+     
+
+    if(nextPaymentCycle && myTreeStats) {
+      return (<h3>Next Due Date is : {getDate(tryToDisplay(myTreeStats[1]))}</h3>)
     }
   }
 
@@ -239,12 +297,15 @@ export default function TreeContent(props) {
             <Divider dashed />
 
             <Row>
+              {waterOrHarver()}
+              {displayNextDueDate()}
+              {/* {waterBtnDisable()}
               {canHarvest() ? (
                 <Col span={12}>
                   <button className="waterStyle">
                     <img
                       src={water}
-                      alt="my image"
+                      alt="water"
                       style={{ width: 80, height: 80 }}
                       onClick={() => {
                         props.tx(
@@ -260,11 +321,11 @@ export default function TreeContent(props) {
                   </button>
                 </Col>
               ) : (
-                <Col span={12}>                  
+                <Col span={12}>
                   <button className="waterStyle">
                     <img
-                      src={water}
-                      alt="my image"
+                      src={harvests}
+                      alt="harvest"
                       style={{ width: 80, height: 80 }}
                       onClick={() => {
                         props.tx(props.writeContracts.Arboretum.redeem(props.id));
@@ -273,7 +334,7 @@ export default function TreeContent(props) {
                     <span class="tooltiptext">Harvest fruits</span>
                   </button>
                 </Col>
-              )}
+              )} */}
             </Row>
             <Row></Row>
           </Col>

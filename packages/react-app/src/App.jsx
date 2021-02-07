@@ -185,12 +185,12 @@ function App(props) {
               My Trees
             </Link>
           </Menu.Item> */}
-          <Menu.Item key="/tree">
+          <Menu.Item key="/">
             <Link
               onClick={() => {
-                setRoute("/tree");
+                setRoute("/");
               }}
-              to="/tree"
+              to="/"
             >
               Forest
             </Link>
