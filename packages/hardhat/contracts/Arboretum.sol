@@ -147,7 +147,7 @@ contract Arboretum {
     uint public treeCount;
     mapping (uint => Tree) public trees;
     mapping (address => bool) public isTree; 
-    mapping (address => uint[]) public treesJoined; //What trees did user join
+    mapping (address => uint[]) public _treesJoined; //What trees did user join
     
     //User stats:
     //mapping (uint => mapping (address => UserStats)) public statsForTree;
@@ -235,7 +235,7 @@ contract Arboretum {
     function logJoin(uint _id, address _waterer) public {
         require(isTree[msg.sender] == true);
         
-        treesJoined[_waterer].push(_id);
+        _treesJoined[_waterer].push(_id);
         
         emit JoinTree(_id,_waterer);
     }
@@ -272,6 +272,10 @@ contract Arboretum {
         t.waterersCount = tree.numOfWateres();
         
        return t; 
+    }
+    
+    function treesJoined(address user) public view returns (uint[] memory) {
+        return _treesJoined[user];
     }
     
     
