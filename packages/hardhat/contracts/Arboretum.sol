@@ -140,22 +140,36 @@ interface IERC20 {
     
 }
 
+
+/// @title Arboretum
+/// @author Michael C.
+/// @notice The core entry point to ether tree. You can plant new trees, or join trees already planted
+/// @dev The three main functions are plant(), water(), and redeem(). plant() creates a subcontract for each Tree
 contract Arboretum {
     
-    using SafeMath for uint; //(Enable safe arithmetic - NEW)
+    using SafeMath for uint; 
     
     uint public treeCount;
     mapping (uint => Tree) public trees;
     mapping (address => bool) public isTree; 
-    mapping (address => uint[]) public _treesJoined; //What trees did user join
+    mapping (address => uint[]) public _treesJoined; 
     
-    //User stats:
-    //mapping (uint => mapping (address => UserStats)) public statsForTree;
     
+    /** 
+     * @notice Plant a new tree. The planter chooses parameters that waterers must adhere to
+     * @param duration - how long a tree will be in the watering phase, where payments can be made
+     * @param freq - the number of payments players would have to make to earn a share of this Tree
+     * @param payment_size - the size of the payment to be made each time. Format: wei
+     * @param lapse_limit - exceeding this percent of delinquent payments will cause planter to earn their posted bounty back plus fee. Format:0-100
+     * @param fee_amount - percentage planter gains if lapse_limit is breached. Format: WAD/wei (eg. 0.01 -> 10000000000000000)
+     * @param start_date - Time before watering period starts, in which planter can join a tree. Format: unix timestamp
+     * @param min_waterers - How many waterers must join for the watreing period to begin, else Fertilzer (payments) go to planter
+     * 
+    */
     function plant(uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers) public payable {
         require (start_date > block.timestamp, "Trees can only grow in the future.");
         
-        Tree t = (new Tree){value: msg.value}(treeCount,duration,freq,payment_size,lapse_limit, fee_amount ,start_date, min_waterers,msg.sender); //.value(msg.value)();
+        Tree t = (new Tree){value: msg.value}(treeCount,duration,freq,payment_size,lapse_limit, fee_amount ,start_date, min_waterers,msg.sender); 
        
         isTree[address(t)] = true;        
         trees[treeCount] = t;
@@ -164,6 +178,11 @@ contract Arboretum {
         emit TreePlanted(treeCount - 1, start_date, start_date.add(duration), msg.value, fee_amount, payment_size, freq, lapse_limit, min_waterers); //expanded event (for subgraph)
     }
     
+    /** 
+     * @notice Before start_date, used to signify interest in joining, afterwards payments are accepted to water the tree
+     * @param id - the id of tree to join or be watererd. 
+     * @dev msg.value must be 0 for join, and exactly paymentSize when watering
+    */
     function water(uint id) public payable {
       require (id < treeCount);
       
@@ -175,6 +194,10 @@ contract Arboretum {
         t.water{value: msg.value}(msg.sender);
     }
     
+    /** 
+     * @notice Reedem fruit. This allows you to claim your share of earnings from the tree.
+     * @param id - the id of the tree to redeem from. Tree watering period must be over to redeem.
+    */
     function redeem(uint id) public {
         require(id < treeCount);
         require (block.timestamp > trees[id].startDate().add(trees[id].treeDuration()), "Must wait until watering period is over to redeem.");
@@ -184,7 +207,15 @@ contract Arboretum {
         t.redeem(msg.sender);
     }
   
-    //Pass-through to get UserStats
+    /** 
+     * @notice get UserStats struct, which shows user's progress with payments and due dates
+     * @param id - the id of the tree to query
+     * @param user - the user to fetch the details for
+     * 
+     * @return fruitEarned - number of payments the user made
+     * @return nextDue - time until user must make payment unless they will be considered lapsed
+     * @return lastDue - time user must wait until they can water again
+    */
     function statsForTree(uint id, address user) view public returns (uint, uint, uint) {
          require(id < treeCount);
          
@@ -193,7 +224,9 @@ contract Arboretum {
          return t.statsForTree(user);
     }
     
-    //eturns 0 if not started yet
+    /** 
+     * @notice Returns time left for the trees watering period in seconds
+     */
     function getTimeLeft(uint id) view public returns (uint) {
           require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -204,7 +237,9 @@ contract Arboretum {
           
     }
     
-    //Like getTimeLeft, but a countdown until the watering period starts
+    /** 
+     * @notice Returns time left to join a tree in seconds
+     */
     function getTimeLeftToStart(uint id) view public returns (uint) {
         require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -214,7 +249,10 @@ contract Arboretum {
           return (time > t.startDate()) ? 0 : t.startDate().sub(time); 
     }
       
-    //Returns the percent of waterers that lapsed  
+    
+    /** 
+     * @notice Returns percentage of users that lapsed. Units 0-100
+     */ 
     function lapsePercent(uint id) view public returns(uint) {
         require(id < treeCount);
         
@@ -223,7 +261,9 @@ contract Arboretum {
         return 100 - ((t.finishedCount().mul(100)).div(t.numOfWateres()));
     }
     
-    //Returns how much the Planter would earn in fees if lapse limit was hit:
+    /** 
+     * @notice Returns ether amount planter would receive if lapseLimit were breached
+     */ 
     function feeAmount(uint id) view public returns (uint) {
         require(id < treeCount);
         
@@ -232,6 +272,9 @@ contract Arboretum {
         return t.fundsRaised().sub(t.bountyPool()).wmul(t.fee());
     }
     
+    /** 
+     * @notice Emit an event when user joins a tree
+     */ 
     function logJoin(uint _id, address _waterer) public {
         require(isTree[msg.sender] == true);
         
@@ -240,18 +283,29 @@ contract Arboretum {
         emit JoinTree(_id,_waterer);
     }
     
+     /** 
+     * @notice Emit an event when user waters a tree
+     */ 
     function logWater(uint _id, address _waterer) public {
          require(isTree[msg.sender] == true);
          
          emit TreeWatered(_id, _waterer);
     }
     
+    
+     /** 
+     * @notice Emit an event when user redeems fruit 
+     */ 
     function logRedeem(uint _id, address _redeemer, uint _etherAmount) public {
          require(isTree[msg.sender] == true);
          
          emit FruitRedeemed( _id,  _redeemer, _etherAmount);
     }
     
+     /** 
+     * @notice Condense all pertinent tree information into a TreeInfo struct.
+     * @dev See plant() for description of Tree parameters
+     */ 
     function treeInfo(uint id) public view returns (TreeInfo memory) {
        TreeInfo memory t; 
         
@@ -274,6 +328,11 @@ contract Arboretum {
        return t; 
     }
     
+     /** 
+     * @notice Get an array list of a trees a user has participated in.
+     * @param user - user to query information for
+     * @return uint[] of all teees the user has joined or watered
+     */ 
     function treesJoined(address user) public view returns (uint[] memory) {
         return _treesJoined[user];
     }
@@ -285,6 +344,12 @@ contract Arboretum {
     event FruitRedeemed(uint _id, address _redeemer, uint _etherAmount);
 }
 
+
+/// @title Tree
+/// @author Michael C.
+/// @notice The individual Tree contract which stores funds and connects to AAVE via the WETHGateway
+/// @dev It is only intended to be messaged by the Arboretum, but third parties can check balance in explorers, code, and call info functions.
+/// @dev The actual ether is tokenized as aWeth AAVE tokens and redeemed from the AAVE pool at a later time, earning interest
 contract Tree is CoreType {
     
     using SafeMath for uint; //(Enable safe arithmetic - NEW)
@@ -448,7 +513,7 @@ contract Tree is CoreType {
         
     }
     
-    //--NEW: Return waterers.length (as it is needed in parent contract)
+    
     function numOfWateres() public view returns (uint) {
         return waterers.length;
     }
