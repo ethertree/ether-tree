@@ -7,7 +7,7 @@ import { parseEther, formatEther } from "@ethersproject/units";
 import { useContractReader, useEventListener } from "../hooks/index";
 import tryToDisplay from "../components/Contract/utils";
 import { TreeContent } from "../components";
-
+import plant from "../img/plant.png";
 export default function Trees({
   treePlantedEvents,
   address,
@@ -39,10 +39,25 @@ export default function Trees({
       */}
       <div style={{ padding: 16, width: 1000, margin: "auto", marginTop: 64 }}>
         {/* <h2>{treeCount} - Trees - </h2> */}
+
         <h2>Trees in forest:</h2>
         {treeCount > 0 ? (
           <div className="site-card-wrapper">
             <Row gutter={16}>
+              <Col span={8}>
+                <Card
+                  id="0s"
+                  key="0s"
+                  hoverable
+                  onClick={() => window.location.href='/plant'}
+                  style={{ width: 300, marginBottom: "30px" }}
+                  cover={<img alt="tree" src={plant} />}
+                >                  
+                  <h3>Plant A Seed</h3>
+                  <></>
+                  <></>
+                </Card>
+              </Col>
               {[...Array(treeCount)].map((i, e) => (
                 <Col span={8}>
                   <TreeContent

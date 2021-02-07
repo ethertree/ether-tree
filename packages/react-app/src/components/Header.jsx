@@ -98,5 +98,5 @@ const Content = ({ children, extraContent }) => (
 );
 
 export default function Header() {
-  return <PageHeader tags={<img src={EtherTree} color="blue" style={{ width: 250, height: 250, marginBottom: -105, marginTop: -75}}/>}></PageHeader>;
+  return <PageHeader  tags={<img src={EtherTree} onClick={() => window.location.href='/'} color="blue" style={{ width: 250, height: 250, marginBottom: -105, marginTop: -75, cursor: "pointer"}}/>}></PageHeader>;
 }

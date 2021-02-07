@@ -40,7 +40,7 @@ export default function Account({
           /*type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time*/
           onClick={loadWeb3Modal}
         >
-          connect1
+          connect
         </Button>,
       );
     }
@@ -52,7 +52,6 @@ export default function Account({
     <span>
       {address ? <Address value={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} /> : "Connecting..."}
       <Balance address={address} provider={localProvider} dollarMultiplier={price} />
-      <Wallet address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
     </span>
   );
 

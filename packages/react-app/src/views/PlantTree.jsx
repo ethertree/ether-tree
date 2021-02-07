@@ -21,6 +21,7 @@ import { SyncOutlined } from "@ant-design/icons";
 import { Address, Balance } from "../components";
 import { parseEther, formatEther } from "@ethersproject/units";
 import moment from "moment";
+import plant from "../img/plant.png";
 
 export default function PlantTree({
   purpose,
@@ -217,6 +218,7 @@ export default function PlantTree({
           </Form.Item>
 
           <Form.Item {...tailLayout}>
+            
             <Button type="primary" htmlType="submit">
               Plant a Seed
             </Button>

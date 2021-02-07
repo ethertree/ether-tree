@@ -1,15 +1,35 @@
 import React, { useState, useEffect } from "react";
 import { usePoller } from "eth-hooks";
-import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin, Popover } from "antd";
+import {
+  Button,
+  Modal,
+  Row,
+  Col,
+  List,
+  Divider,
+  Input,
+  Card,
+  DatePicker,
+  Slider,
+  Switch,
+  Progress,
+  Spin,
+  Popover,
+} from "antd";
 import tryToDisplay from "./Contract/utils";
 import { useContractReader, useEventListener } from "../hooks/index";
 import { formatEther, parseEther } from "@ethersproject/units";
+import { Link } from "react-router-dom";
+import water from "../img/water.png";
+import "./Tree.css";
 
 export default function TreeContent(props) {
   const { Meta } = Card;
   const [treeInfo, setTreeInfo] = useState();
   const treeDetails = useContractReader(props.readContracts, "Arboretum", "treeInfo", [props.id]);
   const myTreeStats = useContractReader(props.readContracts, "Arboretum", "statsForTree", [props.id, props.address]);
+
+  const [visible, setVisible] = useState(false);
 
   function getDate(UNIXimestamp) {
     const a = new Date(UNIXimestamp * 1000);
@@ -59,10 +79,9 @@ export default function TreeContent(props) {
     return days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
   }
 
-  function canRedeem() {
+  function canHarvest() {
     if (treeDetails && myTreeStats) {
       const now = new Date().getTime();
-
       let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;
       if (tryToDisplay(myTreeStats[0]) == tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
         return false;
@@ -155,52 +174,111 @@ export default function TreeContent(props) {
     }
   }
 
+  const waterStyle = {
+    backgroundColor: "white",
+    border: "none",
+    borderStyle: "none",
+    color: "white",
+    "&:focus": {
+      backgroundColor: "white",
+      border: "none",
+      borderStyle: "none",
+      borderColor: "white",
+    },
+  };
+
   return (
-    <Card
-      id={props.e}
-      key={props.e}
-      hoverable
-      style={{ width: 300, marginBottom: "30px" }}
-      cover={<img alt="tree" src={require(`../tree/${getTreeType()}.png`)} />}
-    >
-      <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
-      <p>Start Date : {treeDetails ? getDate(tryToDisplay(treeDetails.startDate)) : ""}</p>
-      <p>nextDue Date : {myTreeStats ? getDate(tryToDisplay(myTreeStats[1])) : ""}</p>
-      <p>lastDue Date : {myTreeStats ? getDate(tryToDisplay(myTreeStats[2])) : ""}</p>
-      <p>
-        End Date :{" "}
-        {treeDetails ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration)) : ""}
-      </p>
-      <p>Waterers Count : {treeDetails ? tryToDisplay(treeDetails.waterersCount) : ""}</p>
-      <p>Min Waterers Needed : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</p>
-
-      <p>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</p>
-      <p>Fruit : {myTreeStats ? tryToDisplay(myTreeStats[0]) : ""}</p>
-      <p>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</p>
-      <p>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</p>
-
-      <Button
-        disabled={waterBtnDisable()}
-        onClick={() => {
-          props.tx(
-            props.writeContracts.Arboretum.water(props.id, {
-              value: treeDetails
-                ? waterIt(tryToDisplay(treeDetails.startDate), formatEther(treeDetails.paymentSize))
-                : "",
-            }),
-          );
-        }}
+    <>
+      <Card
+        id={props.e}
+        key={props.e}
+        hoverable
+        style={{ width: 300, marginBottom: "30px" }}
+        onClick={() => setVisible(true)}
+        cover={<img alt="tree" src={require(`../tree/${getTreeType()}.png`)} />}
       >
-        Water It
-      </Button>
-      <Button
-        disabled={canRedeem()}
-        onClick={() => {
-          props.tx(props.writeContracts.Arboretum.redeem(props.id));
-        }}
+        <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
+        <h4>Start Date : {treeDetails ? getDate(tryToDisplay(treeDetails.startDate)) : ""}</h4>
+        <h4>Current Waterers Count : {treeDetails ? tryToDisplay(treeDetails.waterersCount) : ""}</h4>
+        <h4>Min Waterers Needed : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</h4>
+      </Card>
+      <Modal
+        centered
+        visible={visible}
+        title="Tree Details"
+        onCancel={() => setVisible(false)}
+        footer={null}
+        width={1000}
       >
-        Redeem
-      </Button>
-    </Card>
+        <Row>
+          <Col span={12}>
+            <img alt="tree" src={require(`../tree/${getTreeType()}.png`)} style={{ width: 500, height: 500 }} />
+          </Col>
+          <Col span={12}>
+            <Row>
+              <Col span={24}>
+                <h3>Bounty : {treeDetails ? tryToDisplay(treeDetails.bountyPool) : ""}</h3>
+                <h3>Start Date : {treeDetails ? getDate(tryToDisplay(treeDetails.startDate)) : ""}</h3>
+
+                {/* <h3>nextDue Date : {myTreeStats ? getDate(tryToDisplay(myTreeStats[1])) : ""}</h3>
+                <h3>lastDue Date : {myTreeStats ? getDate(tryToDisplay(myTreeStats[2])) : ""}</h3> */}
+                <h3>
+                  End Date :{" "}
+                  {treeDetails
+                    ? getEndDate(tryToDisplay(treeDetails.startDate), tryToDisplay(treeDetails.treeDuration))
+                    : ""}
+                </h3>
+                <h3>Total Waterers Count : {treeDetails ? tryToDisplay(treeDetails.waterersCount) : ""}</h3>
+                <h3>Min Waterers Needed : {treeDetails ? tryToDisplay(treeDetails.waterersNeeded) : ""}</h3>
+                <h3>Fee : {treeDetails ? tryToDisplay(treeDetails.fee) : ""}</h3>
+                {/* <h3>Fruit : {myTreeStats ? tryToDisplay(myTreeStats[0]) : ""}</h3> */}
+                <h3>Frequency: {treeDetails ? tryToDisplay(treeDetails.paymentFrequency) : ""}</h3>
+                <h3>Payment Size : {treeDetails ? tryToDisplay(treeDetails.paymentSize) : ""}</h3>
+              </Col>
+            </Row>
+            <Divider dashed />
+
+            <Row>
+              {canHarvest() ? (
+                <Col span={12}>
+                  <button className="waterStyle">
+                    <img
+                      src={water}
+                      alt="my image"
+                      style={{ width: 80, height: 80 }}
+                      onClick={() => {
+                        props.tx(
+                          props.writeContracts.Arboretum.water(props.id, {
+                            value: treeDetails
+                              ? waterIt(tryToDisplay(treeDetails.startDate), formatEther(treeDetails.paymentSize))
+                              : "",
+                          }),
+                        );
+                      }}
+                    />
+                    <span class="tooltiptext">Water the tree</span>
+                  </button>
+                </Col>
+              ) : (
+                <Col span={12}>                  
+                  <button className="waterStyle">
+                    <img
+                      src={water}
+                      alt="my image"
+                      style={{ width: 80, height: 80 }}
+                      onClick={() => {
+                        props.tx(props.writeContracts.Arboretum.redeem(props.id));
+                      }}
+                    />
+                    <span class="tooltiptext">Harvest fruits</span>
+                  </button>
+                </Col>
+              )}
+            </Row>
+            <Row></Row>
+          </Col>
+        </Row>
+      </Modal>
+    </>
   );
 }

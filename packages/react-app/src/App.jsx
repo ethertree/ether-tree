@@ -21,7 +21,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree, Faqs } from "./views";
+import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree, Faqs, TreeDetails } from "./views";
 import tryToDisplay from "./components/Contract/utils";
 
 /*
@@ -155,7 +155,7 @@ function App(props) {
 
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
+          {/* <Menu.Item key="/">
             <Link
               onClick={() => {
                 setRoute("/");
@@ -164,8 +164,8 @@ function App(props) {
             >
               YourContract
             </Link>
-          </Menu.Item>
-          <Menu.Item key="/plant">
+          </Menu.Item> */}
+          {/* <Menu.Item key="/plant">
             <Link
               onClick={() => {
                 setRoute("/plant");
@@ -174,8 +174,8 @@ function App(props) {
             >
               Plant A Tree
             </Link>
-          </Menu.Item>
-          <Menu.Item key="/my-tree">
+          </Menu.Item> */}
+          {/* <Menu.Item key="/my-tree">
             <Link
               onClick={() => {
                 setRoute("/my-tree");
@@ -184,7 +184,7 @@ function App(props) {
             >
               My Trees
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="/tree">
             <Link
               onClick={() => {
@@ -228,7 +228,7 @@ function App(props) {
         </Menu>
 
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/contract">
             <Contract
               name="Arboretum"
               signer={userProvider.getSigner()}
@@ -249,7 +249,7 @@ function App(props) {
           <Route path="/my-tree">
             <MyTree />
           </Route>
-          <Route path="/tree">
+          <Route exact path="/">
             <Trees
               address={address}
               userProvider={userProvider}
@@ -278,6 +278,9 @@ function App(props) {
               treeCount={treeCount}
             />
           </Route>
+          {/* <Route path='/tree/:id'>
+            <TreeDetails id="2"/>
+        </Route> */}
         </Switch>
       </BrowserRouter>
 
