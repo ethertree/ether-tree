@@ -11,79 +11,7 @@
 pragma solidity >=0.6.0 <0.7.0;
 pragma experimental ABIEncoderV2;
 
-library SafeMath {
-    
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        require(c >= a, "SafeMath: addition overflow");
-
-        return c;
-    }
-
-    
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return sub(a, b, "SafeMath: subtraction overflow");
-    }
-
-    
-    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-        require(b <= a, errorMessage);
-        uint256 c = a - b;
-
-        return c;
-    }
-
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        
-        if (a == 0) {
-            return 0;
-        }
-
-        uint256 c = a * b;
-        require(c / a == b, "SafeMath: multiplication overflow");
-
-        return c;
-    }
-
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return div(a, b, "SafeMath: division by zero");
-    }
-
-    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-        // Solidity only automatically asserts when dividing by 0
-        require(b > 0, errorMessage);
-        uint256 c = a / b;
-        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-
-        return c;
-    }
-
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return mod(a, b, "SafeMath: modulo by zero");
-    }
-
-    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-        require(b != 0, errorMessage);
-        return a % b;
-    }
-    
-    uint constant WAD = 10 ** 18; 
-    uint constant RAY = 10 ** 27;
-
-    function wmul(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, y), WAD / 2) / WAD;
-    }
-    function rmul(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, y), RAY / 2) / RAY;
-    }
-    function wdiv(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, WAD), y / 2) / y;
-    }
-    function rdiv(uint x, uint y) internal pure returns (uint z) {
-        z = add(mul(x, RAY), y / 2) / y;
-    }
-}
-
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 struct UserStats {
     uint fruitEarned; 
@@ -145,14 +73,18 @@ interface IERC20 {
 /// @author Michael C.
 /// @notice The core entry point to ether tree. You can plant new trees, or join trees already planted
 /// @dev The three main functions are plant(), water(), and redeem(). plant() creates a subcontract for each Tree
-contract Arboretum {
-    
-    using SafeMath for uint; 
+contract Arboretum is ERC721 {
     
     uint public treeCount;
+    uint public nftCount; //NEW: Count (id) of all minted NFTs.
+
     mapping (uint => Tree) public trees;
     mapping (address => bool) public isTree; 
     mapping (address => uint[]) public _treesJoined; 
+
+    constructor() public ERC721("EtherTree NFT", "ETR") {
+
+    }
     
     
     /** 
@@ -302,6 +234,17 @@ contract Arboretum {
          emit FruitRedeemed( _id,  _redeemer, _etherAmount);
     }
     
+    
+     /** 
+     * @notice Mint a new NFT for completing the tree
+     */ 
+    function mintNFT(address user) public {
+         require(isTree[msg.sender] == true);
+         
+         _mint(user,nftCount); //NEW: Mint NFT as reward for beating the EtherTree
+         nftCount++;
+    }
+
      /** 
      * @notice Condense all pertinent tree information into a TreeInfo struct.
      * @dev See plant() for description of Tree parameters
@@ -352,7 +295,7 @@ contract Arboretum {
 /// @dev The actual ether is tokenized as aWeth AAVE tokens and redeemed from the AAVE pool at a later time, earning interest
 contract Tree is CoreType {
     
-    using SafeMath for uint; //(Enable safe arithmetic - NEW)
+    using SafeMath for uint; 
     
     uint public id;               //Tree id
     uint public bountyPool;       //Size of the bounty (in wei)
@@ -487,7 +430,7 @@ contract Tree is CoreType {
           }
           
        } else {
-          if (statsForTree[user].fruitEarned == paymentFrequency) {
+           require(statsForTree[user].fruitEarned == paymentFrequency, "Must make all payments to redeem");
             
                uint amountToSend = 0;
                if (lapseLimit > a.lapsePercent(id)) {
@@ -504,13 +447,14 @@ contract Tree is CoreType {
                    uint theFee = a.feeAmount(id);
                    uint payments = aWeth.balanceOf(address(this)).sub(bounty).sub(theFee); //Once again: interest earned (ever-increasing aToken balance), but less the bounty+fee
                    amountToSend = payments.div(leftToClaim);
+                   statsForTree[user].fruitEarned = 0;
                    leftToClaim = leftToClaim.sub(1);
                    a.logRedeem(id, user, amountToSend);
                    gw.withdrawETH(amountToSend, user);
              }       
           }
-       }
-        
+       
+          a.mintNFT(msg.sender);
     }
     
     
