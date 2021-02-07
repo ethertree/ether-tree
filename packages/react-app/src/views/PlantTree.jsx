@@ -129,9 +129,6 @@ export default function PlantTree({
   const [form] = Form.useForm();
   return (
     <div>
-      {/*
-        ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
-      */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 800, margin: "auto", marginTop: 64 }}>
         <h2>Plant a Seed {treeCount}</h2>
 
@@ -225,42 +222,41 @@ export default function PlantTree({
             </Button>
           </Form.Item>
 
+          <div style={{ margin: 8 }}>
+            <Button
+              onClick={() => {
+                let plantTreeVal = {};
+                plantTreeVal.bounty = parseEther("0.01");
+                plantTreeVal.duration = 900;
+                plantTreeVal.fee_amount = parseEther("0.01");
+                plantTreeVal.frequency = 3;
+                plantTreeVal.laple_limit = 2;
+                plantTreeVal.minwaters = 1;
+                plantTreeVal.payment_size = parseEther("0.01");
+                plantTreeVal.start_date = Math.round(new Date().getTime() / 1000) + 120;
+                console.log(plantTreeVal);
+                tx(
+                  writeContracts.Arboretum.plant(
+                    plantTreeVal.duration,
+                    plantTreeVal.frequency,
+                    plantTreeVal.payment_size,
+                    plantTreeVal.laple_limit,
+                    plantTreeVal.fee_amount,
+                    plantTreeVal.start_date,
+                    plantTreeVal.minwaters,
+                    {
+                      value: plantTreeVal.bounty,
+                    },
+                  ),
+                );
 
-          <div style={{margin:8}}>
-            
-<Button onClick={()=>{
-    let plantTreeVal = {};
-    plantTreeVal.bounty = parseEther("0.01");
-    plantTreeVal.duration = 900;
-    plantTreeVal.fee_amount = parseEther("0.01");
-    plantTreeVal.frequency = 3;
-    plantTreeVal.laple_limit = 2;
-    plantTreeVal.minwaters = 1;
-    plantTreeVal.payment_size = parseEther("0.01");
-    plantTreeVal.start_date = Math.round((new Date()).getTime() / 1000) + 120;
-    console.log(plantTreeVal);
-    tx(
-      writeContracts.Arboretum.plant(
-        plantTreeVal.duration,
-        plantTreeVal.frequency,
-        plantTreeVal.payment_size,
-        plantTreeVal.laple_limit,
-        plantTreeVal.fee_amount,
-        plantTreeVal.start_date,
-        plantTreeVal.minwaters,
-        {
-          value: plantTreeVal.bounty,
-        },
-      ),
-    );
-
-
-  /* this should throw an error about "no fallback nor receive function" until you add it */
-}}>Testing Plant</Button>
-<p>min water 1, duration : 15 min, frequency: 3, payment : 0.01</p>
-</div>
-
-
+                /* this should throw an error about "no fallback nor receive function" until you add it */
+              }}
+            >
+              Testing Plant
+            </Button>
+            <p>min water 1, duration : 15 min, frequency: 3, payment : 0.01</p>
+          </div>
         </Form>
       </div>
     </div>
