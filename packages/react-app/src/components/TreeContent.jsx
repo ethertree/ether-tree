@@ -83,13 +83,10 @@ export default function TreeContent(props) {
   function canHarvest() {
     if (treeDetails && myTreeStats) {
       const now = new Date().getTime();
-      let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;
-      console.log(props.id, " ------ ", tryToDisplay(myTreeStats[0]), tryToDisplay(treeDetails.paymentFrequency), now,endDate);
-      if (tryToDisplay(myTreeStats[0]) == tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {
-        console.log('tru');
+      let endDate = (tryToDisplay(treeDetails.startDate) + tryToDisplay(treeDetails.treeDuration)) * 1000;      
+      if (tryToDisplay(myTreeStats[0]) == tryToDisplay(treeDetails.paymentFrequency) && now > endDate) {        
         return true;
       } else {
-        console.log('false');
         return false;
       }
     }
@@ -179,8 +176,6 @@ export default function TreeContent(props) {
   }
 
   function waterOrHarver() {
-    console.log("WaterD:", waterBtnDisable());
-    console.log("HarvestD:", canHarvest());
     if (!waterBtnDisable()) {
       return (
         <Col span={12}>

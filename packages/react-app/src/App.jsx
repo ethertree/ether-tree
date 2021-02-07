@@ -174,17 +174,7 @@ function App(props) {
             >
               Plant A Tree
             </Link>
-          </Menu.Item> */}
-          {/* <Menu.Item key="/my-tree">
-            <Link
-              onClick={() => {
-                setRoute("/my-tree");
-              }}
-              to="/my-tree"
-            >
-              My Trees
-            </Link>
-          </Menu.Item> */}
+          </Menu.Item> */}         
           <Menu.Item key="/">
             <Link
               onClick={() => {
@@ -193,6 +183,16 @@ function App(props) {
               to="/"
             >
               Forest
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/my-tree">
+            <Link
+              onClick={() => {
+                setRoute("/my-tree");
+              }}
+              to="/my-tree"
+            >
+              My Trees
             </Link>
           </Menu.Item>
           <Menu.Item key="/how-to">
@@ -247,7 +247,17 @@ function App(props) {
             <Faqs />
           </Route>
           <Route path="/my-tree">
-            <MyTree />
+            <MyTree 
+            address={address}
+            userProvider={userProvider}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            yourLocalBalance={yourLocalBalance}
+            price={price}
+            tx={tx}
+            writeContracts={writeContracts}
+            readContracts={readContracts}
+            treeCount={treeCount}/>
           </Route>
           <Route exact path="/">
             <Trees

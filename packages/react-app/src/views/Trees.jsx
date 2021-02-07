@@ -40,7 +40,7 @@ export default function Trees({
       <div style={{ padding: 16, width: 1000, margin: "auto", marginTop: 64 }}>
         {/* <h2>{treeCount} - Trees - </h2> */}
 
-        <h2>Trees in forest:</h2>
+        <h1>Trees in forest</h1>
         {treeCount > 0 ? (
           <div className="site-card-wrapper">
             <Row gutter={16}>
@@ -78,7 +78,25 @@ export default function Trees({
             </Row>
           </div>
         ) : (
-          "No Trees, World need some trees"
+          <div className="site-card-wrapper">
+            <Row gutter={16}>
+              <Col span={8}>
+                <Card
+                  id="0s"
+                  key="0s"
+                  hoverable
+                  onClick={() => window.location.href='/plant'}
+                  style={{ width: 300, marginBottom: "30px" }}
+                  cover={<img alt="tree" src={plant} />}
+                >                  
+                  <h3>Plant A Seed</h3>
+                  <></>
+                  <></>
+                </Card>
+              </Col>             
+              {/* <Col span={8}>No Trees, World need some trees</Col> */}
+            </Row>            
+          </div>
         )}
       </div>
     </div>
