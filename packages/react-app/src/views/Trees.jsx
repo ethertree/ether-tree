@@ -39,7 +39,7 @@ export default function Trees({
       */}
       <div style={{  padding: 16, width: 1000, margin: "auto", marginTop: 64 }}>
         {/* <h2>{treeCount} - Trees - </h2> */}
-        <h2>Trees in forest: {treeCount}</h2>
+      
         <div className="site-card-wrapper">
           <Row gutter={16}>
             {[...Array(treeCount)].map((i, e) => (

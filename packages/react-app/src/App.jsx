@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
-import "antd/dist/antd.css";
+import "./antd-saveus.css";
 import { JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
 import { Row, Col, Button, Menu } from "antd";
@@ -17,12 +17,14 @@ import {
   useBalance,
   useExternalContractLoader,
 } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components";
+import { Header, Account } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree } from "./views";
 import tryToDisplay from "./components/Contract/utils";
+import treeImg from './tree/EtherTree.png';
+
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -176,18 +178,19 @@ function App(props) {
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
+
 
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          <img src={treeImg}  height={64} className={'inline-table h-full float-left pb-4 pl-8 pr-12'} />
           <Menu.Item key="/">
             <Link
               onClick={() => {
-                setRoute("/");
+                setRoute("/tree");
               }}
-              to="/"
+              to="/tree"
             >
-              YourContract
+              Forest
             </Link>
           </Menu.Item>
           <Menu.Item key="/plant">
@@ -210,16 +213,7 @@ function App(props) {
               My Trees
             </Link>
           </Menu.Item>
-          <Menu.Item key="/tree">
-            <Link
-              onClick={() => {
-                setRoute("/tree");
-              }}
-              to="/tree"
-            >
-              Forest
-            </Link>
-          </Menu.Item>
+
           <Menu.Item key="/how-to">
             <Link
               onClick={() => {
@@ -265,12 +259,17 @@ function App(props) {
               address={address}
               blockExplorer={blockExplorer}
             /> */}
-            <Contract
-              name="Arboretum"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
+            <Trees
               address={address}
-              blockExplorer={blockExplorer}
+              userProvider={userProvider}
+              mainnetProvider={mainnetProvider}
+              localProvider={localProvider}
+              yourLocalBalance={yourLocalBalance}
+              price={price}
+              tx={tx}
+              writeContracts={writeContracts}
+              readContracts={readContracts}
+              treeCount={treeCount}
             />
 
             {/* Uncomment to display and interact with an external contract (DAI on mainnet):
@@ -326,7 +325,7 @@ function App(props) {
               tx={tx}
               writeContracts={writeContracts}
               readContracts={readContracts}
-              purpose={"he"}              
+              purpose={"he"}
             />
           </Route>
           <Route path="/plant">
@@ -341,7 +340,7 @@ function App(props) {
               writeContracts={writeContracts}
               readContracts={readContracts}
               purpose={"he"}
-              treeCount={treeCount}              
+              treeCount={treeCount}
             />
           </Route>
           <Route path="/subgraph">

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
 
 import React, { useState } from "react";
-import "antd/dist/antd.css";
+import "../antd-saveus.css";
 import { Button, Typography, Table, Input } from "antd";
 import { useQuery, gql } from '@apollo/client';
 import { Address } from "../components";

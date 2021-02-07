@@ -46,7 +46,7 @@ export default function Address(props) {
     return (
       <span style={{ verticalAlign: "middle" }}>
         <a style={{ color: "#222222" }} target={"_blank"} href={etherscanLink} rel="noopener noreferrer">
-          <Blockies seed={props.value.toLowerCase()} size={8} scale={2} />
+          <Blockies seed={props.value.toLowerCase()} size={6} scale={2} />
         </a>
       </span>
     );
@@ -72,11 +72,11 @@ export default function Address(props) {
   }
 
   return (
-    <span>
+    <span className={'font-extralight'}>
       <span style={{ verticalAlign: "middle" }}>
-        <Blockies seed={props.value.toLowerCase()} size={8} scale={props.fontSize?props.fontSize/7:4} />
+        <Blockies seed={props.value.toLowerCase()} size={6} scale={props.fontSize?props.fontSize/7:4} className="float-left" />
       </span>
-      <span style={{ verticalAlign: "middle", paddingLeft: 5, fontSize: props.fontSize?props.fontSize:28 }}>{text}</span>
+      <span style={{ verticalAlign: "middle", paddingLeft: 5}}>{text}</span>
     </span>
   );
 }

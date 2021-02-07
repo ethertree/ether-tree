@@ -132,7 +132,7 @@ export default function PlantTree({
       {/*
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 800, margin: "auto", marginTop: 64 }}>
+        <div style={{padding: 8,paddingLeft:0, width: 800, margin: "auto", marginTop: 58 }} className={'bg-white'}>
         <h2>Plant a Seed {treeCount}</h2>
 
         <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
