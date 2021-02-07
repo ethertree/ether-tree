@@ -130,7 +130,7 @@ export default function PlantTree({
   return (
     <div>
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 800, margin: "auto", marginTop: 64 }}>
-        <h2>Plant a Seed {treeCount}</h2>
+        <h2>Plant a Seed</h2>
 
         <Form {...layout} form={form} name="control-hooks" onFinish={onFinish}>
           <Form.Item label="Duration" name="duration">
@@ -156,7 +156,7 @@ export default function PlantTree({
             <DatePicker format={dateFormat} disabledDate={disabledDate} />
           </Form.Item>
 
-          <Form.Item label="Payment size" name="payment_size">
+          <Form.Item label="Payment size(in ETH)" name="payment_size">
             <Space direction="vertical">
               <Input
                 onChange={e => {
@@ -166,7 +166,7 @@ export default function PlantTree({
             </Space>
           </Form.Item>
 
-          <Form.Item label="Lapse Limit" name="laple_limit">
+          <Form.Item label="Lapse Limit(in %)" name="laple_limit">
             <Space direction="vertical">
               <Input
                 onChange={e => {
@@ -186,7 +186,7 @@ export default function PlantTree({
             </Space>
           </Form.Item>
 
-          <Form.Item label="Fee Amount" name="fee_amount">
+          <Form.Item label="Fee Amount(in ETH)" name="fee_amount">
             <Space direction="vertical">
               <Input
                 onChange={e => {
@@ -218,7 +218,7 @@ export default function PlantTree({
 
           <Form.Item {...tailLayout}>
             <Button type="primary" htmlType="submit">
-              Submit
+              Plant a Seed
             </Button>
           </Form.Item>
 
@@ -249,8 +249,6 @@ export default function PlantTree({
                     },
                   ),
                 );
-
-                /* this should throw an error about "no fallback nor receive function" until you add it */
               }}
             >
               Testing Plant

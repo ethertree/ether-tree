@@ -21,7 +21,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree , Faqs} from "./views";
+import { Hints, ExampleUI, Subgraph, PlantTree, Trees, About, HowTo, MyTree, Faqs } from "./views";
 import tryToDisplay from "./components/Contract/utils";
 
 /*
@@ -145,33 +145,8 @@ function App(props) {
     setRoute(window.location.pathname);
   }, [setRoute]);
 
-  let faucetHint = "";
-  const [faucetClicked, setFaucetClicked] = useState(false);
-  if (
-    !faucetClicked &&
-    localProvider &&
-    localProvider._network &&
-    localProvider._network.chainId == 31337 &&
-    yourLocalBalance &&
-    formatEther(yourLocalBalance) <= 0
-  ) {
-    faucetHint = (
-      <div style={{ padding: 16 }}>
-        <Button
-          type={"primary"}
-          onClick={() => {
-            faucetTx({
-              to: address,
-              value: parseEther("0.01"),
-            });
-            setFaucetClicked(true);
-          }}
-        >
-          💰 Grab funds from the faucet ⛽️
-        </Button>
-      </div>
-    );
-  }
+  
+
 
   return (
     <div className="App">
@@ -250,31 +225,10 @@ function App(props) {
               FAQ
             </Link>
           </Menu.Item>
-          {/* <Menu.Item key="/hints">
-            <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link onClick={()=>{setRoute("/exampleui")}} to="/exampleui">ExampleUI</Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item> */}
         </Menu>
 
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-            {/* <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            /> */}
             <Contract
               name="Arboretum"
               signer={userProvider.getSigner()}
@@ -282,26 +236,7 @@ function App(props) {
               address={address}
               blockExplorer={blockExplorer}
             />
-
-            {/* Uncomment to display and interact with an external contract (DAI on mainnet):
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
+          </Route>      
           <Route path="/how-to">
             <HowTo />
           </Route>
@@ -309,9 +244,7 @@ function App(props) {
             <About />
           </Route>
           <Route path="/faq">
-            <Faqs
- 
-            />
+            <Faqs />
           </Route>
           <Route path="/my-tree">
             <MyTree />
@@ -330,24 +263,6 @@ function App(props) {
               treeCount={treeCount}
             />
           </Route>
-
-
-
-
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={"he"}              
-            />
-          </Route>
           <Route path="/plant">
             <PlantTree
               address={address}
@@ -360,15 +275,7 @@ function App(props) {
               writeContracts={writeContracts}
               readContracts={readContracts}
               purpose={"he"}
-              treeCount={treeCount}              
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
+              treeCount={treeCount}
             />
           </Route>
         </Switch>
@@ -386,8 +293,7 @@ function App(props) {
           loadWeb3Modal={loadWeb3Modal}
           logoutOfWeb3Modal={logoutOfWeb3Modal}
           blockExplorer={blockExplorer}
-        />
-        {faucetHint}
+        />        
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}

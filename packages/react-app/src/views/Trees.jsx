@@ -37,31 +37,34 @@ export default function Trees({
       {/*
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
-      <div style={{  padding: 16, width: 1000, margin: "auto", marginTop: 64 }}>
+      <div style={{ padding: 16, width: 1000, margin: "auto", marginTop: 64 }}>
         {/* <h2>{treeCount} - Trees - </h2> */}
-        <h2>Trees in forest: {treeCount}</h2>
-        <div className="site-card-wrapper">
-          <Row gutter={16}>
-            {[...Array(treeCount)].map((i, e) => (
-              <Col span={8}>
-                <TreeContent
-                  address={address}
-                  key={e}
-                  id={e}
-                  localProvider={localProvider}
-                  userProvider={userProvider}
-                  mainnetProvide={mainnetProvider}
-                  treePlantedEvents={treePlantedEvents}
-                  tx={tx}
-                  useContractReader={useContractReader}
-                  writeContracts={writeContracts}
-                  readContracts={readContracts}
-                />
-              </Col>
-            ))}
-          </Row>
-        </div>
-        {/* {treePlantedEvents.map(item => <div key={Math.random() * 100}>{tryToDisplay(item[0])}</div>)} */}
+        <h2>Trees in forest:</h2>
+        {treeCount > 0 ? (
+          <div className="site-card-wrapper">
+            <Row gutter={16}>
+              {[...Array(treeCount)].map((i, e) => (
+                <Col span={8}>
+                  <TreeContent
+                    address={address}
+                    key={e}
+                    id={e}
+                    localProvider={localProvider}
+                    userProvider={userProvider}
+                    mainnetProvide={mainnetProvider}
+                    treePlantedEvents={treePlantedEvents}
+                    tx={tx}
+                    useContractReader={useContractReader}
+                    writeContracts={writeContracts}
+                    readContracts={readContracts}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </div>
+        ) : (
+          "No Trees, World need some trees"
+        )}
       </div>
     </div>
   );
