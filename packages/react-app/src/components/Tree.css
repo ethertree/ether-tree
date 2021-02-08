@@ -1,0 +1,37 @@
+.waterStyle {
+    background-color: white;
+    border: none;
+    position: relative;
+    display: inline-block;  
+    cursor: pointer;
+}
+.waterStyle:focus {
+  background-color: white;
+  border: none;
+  outline-color: white;
+  cursor: pointer;
+}
+
+
+.waterStyle .tooltiptext {
+  visibility: hidden;
+  cursor: pointer;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -60px;
+}
+
+.waterStyle:hover .tooltiptext {
+  visibility: visible;
+  cursor: pointer;
+}
