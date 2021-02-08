@@ -4,8 +4,8 @@ import React from "react";
 import "./About.css"
 import sampleImg from "../img/plant.png"
 import castle from "../teamPfp/castle.jpg"
-import sleepy from "../teamPfp/sleepy.jpg"
-import ziggy from "../teamPfp/ziggy.jpg"
+import sleepy1 from "../teamPfp/sleepy1.png"
+import ziggy1 from "../teamPfp/ziggy1.png"
 import adil from "../teamPfp/adil.jpg"
 import mj from "../teamPfp/mj.png"
 
@@ -64,7 +64,7 @@ export default function About() {
         <p>Michael is a creative actuary who has been thinking about blockchain since 2014.</p>
       </div>
       <div className="profile">
-        <img src={ziggy} style={{}}  className="profile-img" />
+        <img src={ziggy1} style={{}}  className="profile-img" />
 
         <h3 className="user-name">Zakiah Ray</h3>
         
@@ -91,11 +91,11 @@ export default function About() {
         <p>Adil is a full Stack JavaScript developer and a second year computer science student who’s interested in learning more about blockchain.</p>
       </div>
       <div className="profile">
-        <img src={sleepy}  className="profile-img" />
+        <img src={sleepy1}  className="profile-img" />
 
         <h3 className="user-name">Himanshu Sethi</h3>
         
-        <p>developer</p>
+        <p>Himanshu is a Solution Architect with backgroud in product development. He spends his weekends advocating for blockchain and building cool stuff in DeFi.</p>
       </div>
     </div>
   </div>
