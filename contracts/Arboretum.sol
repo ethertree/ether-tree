@@ -4,41 +4,95 @@
    It divides the game logic into 3 steps - plant(), water(), redeem()
    It performs time-managment functions and reverts on invalid moves.
 
+   Author: Michael C
+   Addresses: 0x0B4D3203B5638D14d1A3927aF410857652a755E3 (Kovan Testnet)
 */
 
 //TO-DO: Mint NFT for planters if they "win"
-pragma solidity >=0.6.0 <0.7.0;
-pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+pragma solidity ^0.7.4;
+
+library SafeMath {
+    
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+
+        return c;
+    }
+
+    
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return sub(a, b, "SafeMath: subtraction overflow");
+    }
+
+    
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b <= a, errorMessage);
+        uint256 c = a - b;
+
+        return c;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        
+        if (a == 0) {
+            return 0;
+        }
+
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return div(a, b, "SafeMath: division by zero");
+    }
+
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        // Solidity only automatically asserts when dividing by 0
+        require(b > 0, errorMessage);
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+
+        return c;
+    }
+
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: modulo by zero");
+    }
+
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
+        require(b != 0, errorMessage);
+        return a % b;
+    }
+    
+    uint constant WAD = 10 ** 18; 
+    uint constant RAY = 10 ** 27;
+
+    function wmul(uint x, uint y) internal pure returns (uint z) {
+        z = add(mul(x, y), WAD / 2) / WAD;
+    }
+    function rmul(uint x, uint y) internal pure returns (uint z) {
+        z = add(mul(x, y), RAY / 2) / RAY;
+    }
+    function wdiv(uint x, uint y) internal pure returns (uint z) {
+        z = add(mul(x, WAD), y / 2) / y;
+    }
+    function rdiv(uint x, uint y) internal pure returns (uint z) {
+        z = add(mul(x, RAY), y / 2) / y;
+    }
+}
+
 
 struct UserStats {
     uint fruitEarned; 
     uint nextDue; //Time until next payment must be made (in seconds)
-    uint lastDue; //Player must wait until next interval before watering again (prevents watering back-to-back)
+    uint lastDue; //--NEW: Player must wait until next interval before watering again (prevents watering back-to-back)
 }
 
-struct TreeInfo {
-    uint id;
-    uint bountyPool;       //Size of the bounty (in wei)
-    uint treeDuration;     //How long the tree runs in seconds (timestamp)
-    uint paymentFrequency; //Number of payments to be made
-    uint paymentSize;      //Payment amount in ether (wei)
-    uint lapseLimit;
-    uint fee; //Fee 
-    uint startDate;        //Time before watering period starts (in seconds)
-    uint waterersNeeded;   //Minimum players needed to join
-    uint planted; //Timestamp of when tree was planted 
-    
-    address payable planter;       //Address of tree planter / owner
-    //address[] waterers;    //Array of all tree waterers
-    uint waterersCount;
-    
-    //--bookkeeping--//
-    uint fundsRaised;
-    uint finishedCount; //count of all players that made 'paymentFrequency' payments (finished watering)
-   
-}
+
 
 //Some handy global variables and addresses for AAVE
 contract CoreType {
@@ -67,40 +121,21 @@ interface IERC20 {
     
 }
 
-
-/// @title Arboretum
-/// @author Michael C.
-/// @notice The core entry point to ether tree. You can plant new trees, or join trees already planted
-/// @dev The three main functions are plant(), water(), and redeem(). plant() creates a subcontract for each Tree
-contract Arboretum is ERC721 {
+contract Arboretum {
+    
+    using SafeMath for uint; //(Enable safe arithmetic - NEW)
     
     uint public treeCount;
-    uint public nftCount; //NEW: Count (id) of all minted NFTs.
-
     mapping (uint => Tree) public trees;
     mapping (address => bool) public isTree; 
-    mapping (address => uint[]) public _treesJoined; 
-
-    constructor() public ERC721("EtherTree NFT", "ETR") {
-
-    }
     
+    //User stats:
+    //mapping (uint => mapping (address => UserStats)) public statsForTree;
     
-    /** 
-     * @notice Plant a new tree. The planter chooses parameters that waterers must adhere to
-     * @param duration - how long a tree will be in the watering phase, where payments can be made
-     * @param freq - the number of payments players would have to make to earn a share of this Tree
-     * @param payment_size - the size of the payment to be made each time. Format: wei
-     * @param lapse_limit - exceeding this percent of delinquent payments will cause planter to earn their posted bounty back plus fee. Format:0-100
-     * @param fee_amount - percentage planter gains if lapse_limit is breached. Format: WAD/wei (eg. 0.01 -> 10000000000000000)
-     * @param start_date - Time before watering period starts, in which planter can join a tree. Format: unix timestamp
-     * @param min_waterers - How many waterers must join for the watreing period to begin, else Fertilzer (payments) go to planter
-     * 
-    */
     function plant(uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers) public payable {
         require (start_date > block.timestamp, "Trees can only grow in the future.");
         
-        Tree t = (new Tree){value: msg.value}(treeCount,duration,freq,payment_size,lapse_limit, fee_amount ,start_date, min_waterers,msg.sender); 
+        Tree t = (new Tree){value: msg.value}(treeCount,duration,freq,payment_size,lapse_limit, fee_amount ,start_date, min_waterers,msg.sender); //.value(msg.value)();
        
         isTree[address(t)] = true;        
         trees[treeCount] = t;
@@ -109,11 +144,6 @@ contract Arboretum is ERC721 {
         emit TreePlanted(treeCount - 1, start_date, start_date.add(duration), msg.value, fee_amount, payment_size, freq, lapse_limit, min_waterers); //expanded event (for subgraph)
     }
     
-    /** 
-     * @notice Before start_date, used to signify interest in joining, afterwards payments are accepted to water the tree
-     * @param id - the id of tree to join or be watererd. 
-     * @dev msg.value must be 0 for join, and exactly paymentSize when watering
-    */
     function water(uint id) public payable {
       require (id < treeCount);
       
@@ -125,10 +155,6 @@ contract Arboretum is ERC721 {
         t.water{value: msg.value}(msg.sender);
     }
     
-    /** 
-     * @notice Reedem fruit. This allows you to claim your share of earnings from the tree.
-     * @param id - the id of the tree to redeem from. Tree watering period must be over to redeem.
-    */
     function redeem(uint id) public {
         require(id < treeCount);
         require (block.timestamp > trees[id].startDate().add(trees[id].treeDuration()), "Must wait until watering period is over to redeem.");
@@ -138,15 +164,7 @@ contract Arboretum is ERC721 {
         t.redeem(msg.sender);
     }
   
-    /** 
-     * @notice get UserStats struct, which shows user's progress with payments and due dates
-     * @param id - the id of the tree to query
-     * @param user - the user to fetch the details for
-     * 
-     * @return fruitEarned - number of payments the user made
-     * @return nextDue - time until user must make payment unless they will be considered lapsed
-     * @return lastDue - time user must wait until they can water again
-    */
+    //--NEW: Pass-through to get UserStats
     function statsForTree(uint id, address user) view public returns (uint, uint, uint) {
          require(id < treeCount);
          
@@ -155,9 +173,7 @@ contract Arboretum is ERC721 {
          return t.statsForTree(user);
     }
     
-    /** 
-     * @notice Returns time left for the trees watering period in seconds
-     */
+    //--NEW: returns 0 if not started yet
     function getTimeLeft(uint id) view public returns (uint) {
           require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -168,9 +184,7 @@ contract Arboretum is ERC721 {
           
     }
     
-    /** 
-     * @notice Returns time left to join a tree in seconds
-     */
+    //--NEW: Like getTimeLeft, but a countdown until the watering period starts
     function getTimeLeftToStart(uint id) view public returns (uint) {
         require(id < treeCount);
           uint256 time = block.timestamp; 
@@ -180,10 +194,7 @@ contract Arboretum is ERC721 {
           return (time > t.startDate()) ? 0 : t.startDate().sub(time); 
     }
       
-    
-    /** 
-     * @notice Returns percentage of users that lapsed. Units 0-100
-     */ 
+    //Returns the percent of waterers that lapsed  
     function lapsePercent(uint id) view public returns(uint) {
         require(id < treeCount);
         
@@ -192,9 +203,7 @@ contract Arboretum is ERC721 {
         return 100 - ((t.finishedCount().mul(100)).div(t.numOfWateres()));
     }
     
-    /** 
-     * @notice Returns ether amount planter would receive if lapseLimit were breached
-     */ 
+    //Returns how much the Planter would earn in fees if lapse limit was hit:
     function feeAmount(uint id) view public returns (uint) {
         require(id < treeCount);
         
@@ -203,82 +212,23 @@ contract Arboretum is ERC721 {
         return t.fundsRaised().sub(t.bountyPool()).wmul(t.fee());
     }
     
-    /** 
-     * @notice Emit an event when user joins a tree
-     */ 
     function logJoin(uint _id, address _waterer) public {
         require(isTree[msg.sender] == true);
-        
-        _treesJoined[_waterer].push(_id);
         
         emit JoinTree(_id,_waterer);
     }
     
-     /** 
-     * @notice Emit an event when user waters a tree
-     */ 
     function logWater(uint _id, address _waterer) public {
          require(isTree[msg.sender] == true);
          
          emit TreeWatered(_id, _waterer);
     }
     
-    
-     /** 
-     * @notice Emit an event when user redeems fruit 
-     */ 
     function logRedeem(uint _id, address _redeemer, uint _etherAmount) public {
          require(isTree[msg.sender] == true);
          
          emit FruitRedeemed( _id,  _redeemer, _etherAmount);
     }
-    
-    
-     /** 
-     * @notice Mint a new NFT for completing the tree
-     */ 
-    function mintNFT(address user) public {
-         require(isTree[msg.sender] == true);
-         
-         _mint(user,nftCount); //NEW: Mint NFT as reward for beating the EtherTree
-         nftCount++;
-    }
-
-     /** 
-     * @notice Condense all pertinent tree information into a TreeInfo struct.
-     * @dev See plant() for description of Tree parameters
-     */ 
-    function treeInfo(uint id) public view returns (TreeInfo memory) {
-       TreeInfo memory t; 
-        
-        Tree  tree = trees[id];
-        t.id = tree.id();
-        t.bountyPool = tree.bountyPool();
-        t.treeDuration = tree.treeDuration();
-        t.paymentFrequency = tree.paymentFrequency();
-        t.paymentSize = tree.paymentSize();
-        t.lapseLimit = tree.lapseLimit();
-        t.fee = tree.fee();
-        t.startDate = tree.startDate();
-        t.waterersNeeded = tree.waterersNeeded();
-        t.planter = tree.planter();
-        t.fundsRaised = tree.fundsRaised();
-        t.finishedCount = tree.finishedCount();
-        t.planted = tree.planted();
-        t.waterersCount = tree.numOfWateres();
-        
-       return t; 
-    }
-    
-     /** 
-     * @notice Get an array list of a trees a user has participated in.
-     * @param user - user to query information for
-     * @return uint[] of all teees the user has joined or watered
-     */ 
-    function treesJoined(address user) public view returns (uint[] memory) {
-        return _treesJoined[user];
-    }
-    
     
     event JoinTree(uint _id, address _waterer);
     event TreeWatered(uint _id, address _waterer);
@@ -286,15 +236,9 @@ contract Arboretum is ERC721 {
     event FruitRedeemed(uint _id, address _redeemer, uint _etherAmount);
 }
 
-
-/// @title Tree
-/// @author Michael C.
-/// @notice The individual Tree contract which stores funds and connects to AAVE via the WETHGateway
-/// @dev It is only intended to be messaged by the Arboretum, but third parties can check balance in explorers, code, and call info functions.
-/// @dev The actual ether is tokenized as aWeth AAVE tokens and redeemed from the AAVE pool at a later time, earning interest
 contract Tree is CoreType {
     
-    using SafeMath for uint; 
+    using SafeMath for uint; //(Enable safe arithmetic - NEW)
     
     uint public id;               //Tree id
     uint public bountyPool;       //Size of the bounty (in wei)
@@ -305,7 +249,6 @@ contract Tree is CoreType {
     uint public fee; //--NEW: Fee 
     uint public startDate;        //Time before watering period starts (in seconds)
     uint public waterersNeeded;   //Minimum players needed to join
-    uint public planted;          //What time the tree was planted
     
     address payable public planter;       //Address of tree planter / owner
     address[] public waterers;    //Array of all tree waterers
@@ -318,9 +261,8 @@ contract Tree is CoreType {
     uint internal leftToClaim; //Same as finishedCount, goes down by 1 everytime someone redeems (fix for AAVE implementation)
     
     mapping (address => UserStats) public statsForTree;
-   
     
-    constructor(uint treeId,uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers, address payable the_planter) public payable  {
+    constructor(uint treeId,uint duration, uint freq, uint payment_size, uint lapse_limit, uint fee_amount ,uint start_date, uint min_waterers, address payable the_planter) payable  {
         
         IWETHGateway gw = IWETHGateway(wethGateway);
         
@@ -335,7 +277,6 @@ contract Tree is CoreType {
          startDate = start_date;
          planter = the_planter; 
          waterersNeeded = min_waterers;
-         planted = block.timestamp; 
         
          //Validation and processing payment 
          fundsRaised = fundsRaised.add(bountyPool);
@@ -429,7 +370,7 @@ contract Tree is CoreType {
           }
           
        } else {
-           require(statsForTree[user].fruitEarned == paymentFrequency, "Must make all payments to redeem");
+          if (statsForTree[user].fruitEarned == paymentFrequency) {
             
                uint amountToSend = 0;
                if (lapseLimit > a.lapsePercent(id)) {
@@ -446,17 +387,16 @@ contract Tree is CoreType {
                    uint theFee = a.feeAmount(id);
                    uint payments = aWeth.balanceOf(address(this)).sub(bounty).sub(theFee); //Once again: interest earned (ever-increasing aToken balance), but less the bounty+fee
                    amountToSend = payments.div(leftToClaim);
-                   statsForTree[user].fruitEarned = 0;
                    leftToClaim = leftToClaim.sub(1);
                    a.logRedeem(id, user, amountToSend);
                    gw.withdrawETH(amountToSend, user);
              }       
           }
-       
-          a.mintNFT(msg.sender);
+       }
+        
     }
     
-    
+    //--NEW: Return waterers.length (as it is needed in parent contract)
     function numOfWateres() public view returns (uint) {
         return waterers.length;
     }
